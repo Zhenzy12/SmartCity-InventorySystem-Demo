@@ -8,6 +8,7 @@ import { BxSolidCategoryAlt } from '@kalimahapps/vue-icons';
 import ConfirmationModal from '../../ConfirmationModal.vue';
 import Loading from '../../Loading.vue';
 import { useDatabaseStore } from '../../../stores/databaseStore';
+import mockBorrowers from '../../../data/mockBorrowersData.json';
 
 const databaseStore = useDatabaseStore()
 
@@ -62,6 +63,7 @@ const confirmAddBorrower = async () => {
         isLoading.value = true
 
         const addBorrower = {
+            id: databaseStore.borrowers.length + 1,
             borrowers_name: borrowerName.value,
             borrowers_contact: borrowerContact.value,
             office_id: selectedOffice.value,
@@ -69,26 +71,13 @@ const confirmAddBorrower = async () => {
             deleted_by: null
         }
 
-        console.log("Add copy data sent: ", addBorrower)
+        databaseStore.addBorrower(addBorrower);
 
-        const response = await axiosClient.post(
-            `/api/borrowers/`,
-            addBorrower,
-            {
-                headers: {
-                    "x-api-key": API_KEY,
-                },
-            }
-        );
-        console.log('Add Borrower API response:', response);
-        // emitter.emit("show-toast", { message: "Borrower added successfully!", type: "success" });
-        // closeModal()
+        await new Promise(resolve => setTimeout(resolve, 500));
     } catch (error) {
         console.error('Error adding borrower:', error);
-        console.error('Error details:', error.response?.data);
         emitter.emit("show-toast", { message: "Error adding borrower. Please try again.", type: "error" });
     } finally {
-        await databaseStore.fetchData();
         isLoading.value = false;
         emitter.emit("show-toast", { message: "Borrower added successfully!", type: "success" });
         closeModal();

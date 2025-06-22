@@ -94,28 +94,15 @@ const confirmRecoverBorrowers = async () => {
                 is_deleted: 0,
                 deleted_by: null
             }
+            databaseStore.restoreBorrower(borrower.id, updateBorrower);
 
-
-            console.log("Update user data sent: ", updateBorrower)
-
-            const response = await axiosClient.put(
-                `/api/borrowers/${borrower.id}`,
-                updateBorrower,
-                {
-                    headers: {
-                        "x-api-key": API_KEY,
-                    },
-                }
-            );
-            console.log('Update Borrower API response:', response);
+            await new Promise(resolve => setTimeout(resolve, 500));
         }
 
     } catch (error) {
         console.error('Error updating borrowers:', error);
-        console.error('Error details:', error.response?.data);
         emitter.emit("show-toast", { message: "Error recovering borrowers. Please try again.", type: "error" });
     } finally {
-        await databaseStore.fetchData();
         isLoading.value = false;
         emitter.emit("show-toast", { 
             message: "Selected borrowers recovered successfully!", 

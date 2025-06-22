@@ -15,7 +15,7 @@ import { AnFilledPrinter } from '@kalimahapps/vue-icons';
 import { useRouter } from 'vue-router';
 import TableHeaderFormat from '../TableHeaderFormat.vue';
 import useUserStore from '../../stores/user';
-import {defineEmits} from 'vue';
+import { defineEmits } from 'vue';
 import { MdRestore } from "@kalimahapps/vue-icons";
 
 const userStore = useUserStore()
@@ -202,28 +202,13 @@ const confirmDeleteBorrower = async (confirmed, borrowerId) => {
     if (confirmed) {
         isLoadingAgain.value = true
         try {
-            const deleteBorrower = {
-                is_deleted: 1,
-                deleted_by: user.value.id,
-            }
-            const response = await axiosClient.put(`api/borrowers/${borrowerId}`, deleteBorrower, {
-                headers: { 'x-api-key': API_KEY },
-            });
-
-            // borrowersList.value = borrowersList.value.filter(b => b.id !== borrowerId);
-
-            console.log('Delete Borrower API response:', response);
-
-            console.log(`Borrower deleted successfully.`);
-
-            // Emit success toast only after a successful delete
-            // emitter.emit("show-toast", { message: "Borrower deleted successfully!", type: "success" });
+            databaseStore.deleteBorrower(borrowerId, user.value.id);
+            await new Promise(resolve => setTimeout(resolve, 500));
         } catch (error) {
             console.error('Error deleting borrower:', error);
             emitter.emit("show-toast", { message: "Error deleting borrower. Please try again.", type: "error" });
             isLoadingAgain.value = false
         } finally {
-            await databaseStore.fetchData();
             showDeleteConfirmationModal.value = false; // Close the modal
             isLoadingAgain.value = false
             emitter.emit("show-toast", { message: "Borrower deleted successfully!", type: "success" });
@@ -381,7 +366,8 @@ const OpenViewTransactionHistoryPage = (borrower) => {
         </div>
 
         <div v-else class="overflow-x-auto">
-            <div class="grid grid-cols-3 lg:grid-cols-8 gap-2 items-center justify-between md:space-y-0 md:space-x-4 p-4">
+            <div
+                class="grid grid-cols-3 lg:grid-cols-8 gap-2 items-center justify-between md:space-y-0 md:space-x-4 p-4">
                 <!-- Search Box -->
                 <div class="col-span-3 lg:col-span-5 w-full">
                     <form class="flex items-center">
@@ -403,25 +389,27 @@ const OpenViewTransactionHistoryPage = (borrower) => {
                 </div>
                 <!-- ADD BUTTON -->
                 <button @click.stop="OpenAddBorrowerModal"
-    class="col-span-1 w-full h-full flex items-center justify-center border px-2 py-1 rounded-lg button-default-green">
-    <ClAddPlus class="w-8 h-8" />
-    <p class="ml-1">Add Borrower</p>
-</button>
+                    class="col-span-1 w-full h-full flex items-center justify-center border px-2 py-1 rounded-lg button-default-green">
+                    <ClAddPlus class="w-8 h-8" />
+                    <p class="ml-1">Add Borrower</p>
+                </button>
                 <button @click="handlePrint"
                     class="col-span-1 lg:col-span-1 w-full h-full flex items-center justify-center border px-2 py-1 rounded-lg button-default-green">
                     <AnFilledPrinter class="w-8 h-8" />
                     <p class="ml-1 text-sm">Print Borrowers</p>
                 </button>
-                 <button @click.stop="OpenRecoverBorrowerModal()"
+                <button @click.stop="OpenRecoverBorrowerModal()"
                     class="col-span-1 w-full h-full flex items-center justify-center border px-2 py-1 rounded-lg button-default-green">
                     <MdRestore class="w-8 h-8" />
                     <p class="ml-1">Recover Borrowers</p>
                 </button>
             </div>
-            <div class="rounded-lg min-h-[59vh] max-h-[60vh] md:max-h-[65vh] xl:max-h-[68vh] 2xl:xl:max-h-[70vh] overflow-auto [scrollbar-width:thin] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden bg-gray-200 dark:bg-gray-900">
+            <div
+                class="rounded-lg min-h-[59vh] max-h-[60vh] md:max-h-[65vh] xl:max-h-[68vh] 2xl:xl:max-h-[70vh] overflow-auto [scrollbar-width:thin] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden bg-gray-200 dark:bg-gray-900">
                 <table class="w-full text-sm text-center text-gray-500 dark:text-gray-400">
                     <thead class=" sticky top-0 z-10">
-                        <tr class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-200 uppercase text-center text-xs rounded-lg">
+                        <tr
+                            class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-200 uppercase text-center text-xs rounded-lg">
                             <th class="py-3 px-2 cursor-pointer" @click="sortByField('id')">
                                 <TableHeaderFormat label="ID" field="id" :sortBy="sortBy"
                                     :sortDirection="sortDirection" />
@@ -443,7 +431,8 @@ const OpenViewTransactionHistoryPage = (borrower) => {
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-if="paginatedBorrowers.length === 0" class="border-b border-gray-400 dark:border-gray-700">
+                        <tr v-if="paginatedBorrowers.length === 0"
+                            class="border-b border-gray-400 dark:border-gray-700">
                             <td colspan="6" class="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
                                 No borrowers found
                             </td>
@@ -526,7 +515,8 @@ const OpenViewTransactionHistoryPage = (borrower) => {
                     </tbody>
                 </table>
             </div>
-            <nav v-if="paginatedBorrowers.length > 0" class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4"
+            <nav v-if="paginatedBorrowers.length > 0"
+                class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4"
                 aria-label="Table navigation">
                 <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
                     Showing
@@ -536,7 +526,7 @@ const OpenViewTransactionHistoryPage = (borrower) => {
                     </span>
                     of
                     <span class="font-semibold text-gray-900 dark:text-white">{{ filteredBorrowers.length
-                        }}</span>
+                    }}</span>
                 </span>
 
                 <ul class="inline-flex items-stretch -space-x-px">
@@ -582,7 +572,7 @@ const OpenViewTransactionHistoryPage = (borrower) => {
 
             <AddBorrowerModal v-if="isOpenAddBorrowerModal" v-model="isOpenAddBorrowerModal"
                 :officeList="databaseStore.officeList" @click.stop />
-                 <RecoverBorrowerModal v-if="isOpenRecoverBorrowerModal" v-model="isOpenRecoverBorrowerModal" @click.stop />
+            <RecoverBorrowerModal v-if="isOpenRecoverBorrowerModal" v-model="isOpenRecoverBorrowerModal" @click.stop />
         </div>
     </div>
 </template>
