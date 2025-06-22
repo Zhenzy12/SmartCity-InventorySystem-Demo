@@ -1,0 +1,92 @@
+[
+    {
+        "id": 1,
+        "borrower_id": 1,
+        "borrow_date": "2025-06-12T10:00:00+08:00",
+        "return_date": null,
+        "lender_id": 3,
+        "remarks": "Laptop borrowed for presentation",
+        "isc": "Michael"
+    },
+    {
+        "id": 2,
+        "borrower_id": 2,
+        "borrow_date": "2025-06-02T10:00:00+08:00",
+        "return_date": null,
+        "lender_id": 4,
+        "remarks": "Office supplies for finance team",
+        "isc": "Jan"
+    },
+    {
+        "id": 3,
+        "borrower_id": 3,
+        "borrow_date": "2025-06-07T10:00:00+08:00",
+        "return_date": null,
+        "lender_id": 2,
+        "remarks": "Projector borrowed for training",
+        "isc": "Rie"
+    },
+    {
+        "id": 4,
+        "borrower_id": 4,
+        "borrow_date": "2025-05-28T10:00:00+08:00",
+        "return_date": null,
+        "lender_id": 5,
+        "remarks": "Books for research purposes",
+        "isc": "Oliver"
+    },
+    {
+        "id": 5,
+        "borrower_id": 5,
+        "borrow_date": "2025-06-10T10:00:00+08:00",
+        "return_date": null,
+        "lender_id": 1,
+        "remarks": "Microphone borrowed for event",
+        "isc": "Glenn"
+    },
+    {
+        "id": 6,
+        "borrower_id": 6,
+        "borrow_date": "2025-06-04T10:00:00+08:00",
+        "return_date": null,
+        "lender_id": 7,
+        "remarks": "Chairs borrowed for seminar",
+        "isc": "Ronjay"
+    },
+    {
+        "id": 7,
+        "borrower_id": 7,
+        "borrow_date": "2025-05-23T10:00:00+08:00",
+        "return_date": null,
+        "lender_id": 6,
+        "remarks": "Whiteboard borrowed for meeting",
+        "isc": "Vincent"
+    },
+    {
+        "id": 8,
+        "borrower_id": 8,
+        "borrow_date": "2025-06-17T10:00:00+08:00",
+        "return_date": null,
+        "lender_id": 8,
+        "remarks": "Printer borrowed for reports",
+        "isc": "Andre"
+    },
+    {
+        "id": 9,
+        "borrower_id": 9,
+        "borrow_date": "2025-05-31T10:00:00+08:00",
+        "return_date": null,
+        "lender_id": 9,
+        "remarks": "Camera borrowed for documentation",
+        "isc": "Erynth"
+    },
+    {
+        "id": 10,
+        "borrower_id": 10,
+        "borrow_date": "2025-06-15T10:00:00+08:00",
+        "return_date": null,
+        "lender_id": 10,
+        "remarks": "Extension cords borrowed for event",
+        "isc": "Rafael"
+    }
+]

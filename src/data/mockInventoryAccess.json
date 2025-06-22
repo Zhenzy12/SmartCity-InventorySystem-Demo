@@ -1,0 +1,12 @@
+{
+    "inventoryAccess": {
+        "for_dashboard": true,
+        "for_transactions": true,
+        "for_inventory": true,
+        "for_offices": true,
+        "for_categories": true,
+        "for_borrowers": true,
+        "for_users": true,
+        "user_id": 1
+    }
+}

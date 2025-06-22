@@ -1,0 +1,126 @@
+[
+    {
+        "id": 1,
+        "office_name": "City Mayors Office"
+    },
+    {
+        "id": 2,
+        "office_name": "Sangguniang Panlungsod ng Baguio"
+    },
+    {
+        "id": 3,
+        "office_name": "City Administrators Office"
+    },
+    {
+        "id": 4,
+        "office_name": "City Human Resource Management Office"
+    },
+    {
+        "id": 5,
+        "office_name": "City General Services Office"
+    },
+    {
+        "id": 6,
+        "office_name": "City Building And Architecture Office"
+    },
+    {
+        "id": 7,
+        "office_name": "City Planning, Development, and Sustainability Office"
+    },
+    {
+        "id": 8,
+        "office_name": "City Accounting Office"
+    },
+    {
+        "id": 9,
+        "office_name": "City Assessors Office"
+    },
+    {
+        "id": 10,
+        "office_name": "City Budget Office"
+    },
+    {
+        "id": 11,
+        "office_name": "City Treasurers Office"
+    },
+    {
+        "id": 12,
+        "office_name": "City Civil Registry Office"
+    },
+    {
+        "id": 13,
+        "office_name": "City Legal Office"
+    },
+    {
+        "id": 14,
+        "office_name": "City Disaster Risk Reduction and Management Office"
+    },
+    {
+        "id": 15,
+        "office_name": "City Veterinary and Agriculture Office"
+    },
+    {
+        "id": 16,
+        "office_name": "City Social Welfare and Development Office"
+    },
+    {
+        "id": 17,
+        "office_name": "City Health Services Office"
+    },
+    {
+        "id": 18,
+        "office_name": "City Environment And Parks Management Office"
+    },
+    {
+        "id": 19,
+        "office_name": "City Engineering Office"
+    },
+    {
+        "id": 20,
+        "office_name": "Baguio City Police Office"
+    },
+    {
+        "id": 21,
+        "office_name": "Bureau Of Fire Protection"
+    },
+    {
+        "id": 22,
+        "office_name": "Bureau Of Jail Management And Penology (Female)"
+    },
+    {
+        "id": 23,
+        "office_name": "Bureau Of Jail Management And Penology (Male)"
+    },
+    {
+        "id": 24,
+        "office_name": "Commission On Audit"
+    },
+    {
+        "id": 25,
+        "office_name": "Department Of Education"
+    },
+    {
+        "id": 26,
+        "office_name": "Municipal Trial Court"
+    },
+    {
+        "id": 27,
+        "office_name": "Parole"
+    },
+    {
+        "id": 28,
+        "office_name": "Prosecutors Office"
+    },
+    {
+        "id": 29,
+        "office_name": "Public Attorneys Office"
+    },
+    {
+        "id": 30,
+        "office_name": "Regional Trial Court"
+    },
+    {
+        "id": 31,
+        "office_name": "DILG - Baguio City Field Office"
+    }
+]

@@ -1,0 +1,47 @@
+// /src/stores/databaseStore.js
+import { defineStore } from "pinia";
+import mockInventoryAccessData from "../data/mockInventoryAccessData.json";
+import mockUserData from "../data/mockUserData.json";
+import mockBorrowersData from "../data/mockBorrowersData.json";
+import mockCategoryListData from "../data/mockCategoryListData.json";
+import mockEquipmentCopiesData from "../data/mockEquipmentCopiesData.json";
+import mockOfficeEquipmentsData from "../data/mockOfficeEquipmentsData.json";
+import mockOfficeListData from "../data/mockOfficeListData.json";
+import mockOfficeSuppliesData from "../data/mockOfficeSuppliesData.json";
+import mockTransactionHistoryData from "../data/mockTransactionHistoryData.json";
+import mockTransactionItemsData from "../data/mockTransactionItemsData.json";
+
+export const useDatabaseStore = defineStore("database", {
+	state: () => ({
+		officeEquipments: [],
+		officeSupplies: [],
+		equipmentCopies: [],
+		categoryList: [],
+		transactionItems: [],
+		transactionHistory: [],
+		users: [],
+		borrowers: [],
+		officeList: [],
+		inventoryAccesses: [],
+		fetchedDataCount: 0,
+		isLoading: true,
+	}),
+	actions: {
+		fetchData() {
+			this.isLoading = true;
+			this.fetchedDataCount = 12;
+
+			this.inventoryAccesses = mockInventoryAccessData;
+			this.users = mockUserData;
+			this.officeEquipments = mockOfficeEquipmentsData;
+			this.officeSupplies = mockOfficeSuppliesData;
+			this.equipmentCopies = mockEquipmentCopiesData;
+			this.categoryList = mockCategoryListData;
+			this.transactionItems = mockTransactionItemsData;
+			this.transactionHistory = mockTransactionHistoryData;
+			this.borrowers = mockBorrowersData;
+			this.officeList = mockOfficeListData;
+			this.isLoading = false;
+		},
+	},
+});

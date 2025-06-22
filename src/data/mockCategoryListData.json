@@ -1,0 +1,52 @@
+[
+    {
+        "id": 1,
+        "category_name": "Electronics",
+        "deleted_by": null
+    },
+    {
+        "id": 2,
+        "category_name": "Office Supplies",
+        "deleted_by": null
+    },
+    {
+        "id": 3,
+        "category_name": "Furniture",
+        "deleted_by": null
+    },
+    {
+        "id": 4,
+        "category_name": "Books",
+        "deleted_by": null
+    },
+    {
+        "id": 5,
+        "category_name": "Stationery",
+        "deleted_by": null
+    },
+    {
+        "id": 6,
+        "category_name": "Audio Equipment",
+        "deleted_by": null
+    },
+    {
+        "id": 7,
+        "category_name": "Networking Devices",
+        "deleted_by": null
+    },
+    {
+        "id": 8,
+        "category_name": "Storage Equipment",
+        "deleted_by": null
+    },
+    {
+        "id": 9,
+        "category_name": "Cleaning Supplies",
+        "deleted_by": null
+    },
+    {
+        "id": 10,
+        "category_name": "Tools & Hardware",
+        "deleted_by": null
+    }
+]

@@ -1,0 +1,92 @@
+[
+    {
+        "id": 1,
+        "type": "Office Supply",
+        "supply_name": "Bond Paper",
+        "supply_description": "A4 size white paper for printing",
+        "category_id": 5,
+        "supply_quantity": 500,
+        "isc": "Juan Carlo"
+    },
+    {
+        "id": 2,
+        "type": "Office Supply",
+        "supply_name": "Ballpoint Pens",
+        "supply_description": "Black ink pens for office use",
+        "category_id": 5,
+        "supply_quantity": 200,
+        "isc": "Kardo Carding"
+    },
+    {
+        "id": 3,
+        "type": "Office Supply",
+        "supply_name": "Stapler",
+        "supply_description": "Heavy-duty stapler for office documents",
+        "category_id": 2,
+        "supply_quantity": 50,
+        "isc": "Stepping Curry"
+    },
+    {
+        "id": 4,
+        "type": "Office Supply",
+        "supply_name": "Paper Clips",
+        "supply_description": "Assorted sizes of paper clips",
+        "category_id": 5,
+        "supply_quantity": 1000,
+        "isc": "Lebron Goat James"
+    },
+    {
+        "id": 5,
+        "type": "Office Supply",
+        "supply_name": "Whiteboard Markers",
+        "supply_description": "Set of dry-erase markers",
+        "category_id": 4,
+        "supply_quantity": 100,
+        "isc": "Hatdog Itlog"
+    },
+    {
+        "id": 6,
+        "type": "Office Supply",
+        "supply_name": "Sticky Notes",
+        "supply_description": "Colorful sticky notes for reminders",
+        "category_id": 5,
+        "supply_quantity": 300,
+        "isc": "Porta Vaga"
+    },
+    {
+        "id": 7,
+        "type": "Office Supply",
+        "supply_name": "Correction Tape",
+        "supply_description": "Quick-dry correction tape for mistakes",
+        "category_id": 5,
+        "supply_quantity": 150,
+        "isc": "Nilagang Hatdog"
+    },
+    {
+        "id": 8,
+        "type": "Office Supply",
+        "supply_name": "Folders",
+        "supply_description": "Standard legal-size document folders",
+        "category_id": 2,
+        "supply_quantity": 400,
+        "isc": "Jollibee McDo"
+    },
+    {
+        "id": 9,
+        "type": "Office Supply",
+        "supply_name": "Highlighters",
+        "supply_description": "Pack of assorted color highlighters",
+        "category_id": 5,
+        "supply_quantity": 250,
+        "isc": "Siomai Danes"
+    },
+    {
+        "id": 10,
+        "type": "Office Supply",
+        "supply_name": "Envelopes",
+        "supply_description": "Brown legal envelopes for documents",
+        "category_id": 2,
+        "supply_quantity": 600,
+        "isc": "Browny James"
+    }
+]

@@ -1,0 +1,15 @@
+{
+	"user": {
+		"id": 1,
+		"firstName": "John",
+		"middleName": "Doe",
+		"lastName": "Lacay",
+		"email": "sample@gmail.com",
+		"email_verified_at": "01/02/2025",
+		"password": "p@ssword123",
+		"for_911": true,
+		"for_inventory": true,
+		"for_traffic": true,
+		"role": true
+	}
+}
