@@ -72,6 +72,7 @@ const confirmUpdateBorrower = async () => {
         isLoading.value = true
 
         const updateBorrower = {
+            id: props.borrower.id,
             borrowers_name: borrowerName.value,
             borrowers_contact: borrowerContact.value,
             office_id: selectedOffice.value
@@ -79,24 +80,13 @@ const confirmUpdateBorrower = async () => {
 
         console.log("Add copy data sent: ", updateBorrower)
 
-        const response = await axiosClient.put(
-            `/api/borrowers/${props.borrower.id}`,
-            updateBorrower,
-            {
-                headers: {
-                    "x-api-key": API_KEY,
-                },
-            }
-        );
-        console.log('Update Borrower API response:', response);
-        // emitter.emit("show-toast", { message: "Borrower updated successfully!", type: "success" });
-        // closeModal()
+        databaseStore.updateBorrower(updateBorrower);
+
+        await new Promise(resolve => setTimeout(resolve, 500));
     } catch (error) {
         console.error('Error updating borrower:', error);
-        console.error('Error details:', error.response?.data);
-        emitter.emit("show-toast", { message: "Error borrower category. Please try again.", type: "error" });
+        emitter.emit("show-toast", { message: "Error borrower. Please try again.", type: "error" });
     } finally {
-        await databaseStore.fetchData();
         isLoading.value = false;
         emitter.emit("show-toast", { message: "Borrower updated successfully!", type: "success" });
         closeModal();
