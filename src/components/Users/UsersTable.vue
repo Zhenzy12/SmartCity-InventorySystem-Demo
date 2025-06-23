@@ -209,25 +209,9 @@ const confirmDeleteUser = async (confirmed, userId) => {
 		const userToDelete = databaseStore.users.find((user) => user.id === userId);
 
 		try {
-			const deleteUser = {
-				firstName: userToDelete.firstName,
-				middleName: userToDelete.middleName,
-				lastName: userToDelete.lastName,
-				email: userToDelete.email,
-				is_deleted: 1,
-				for_911: userToDelete.for_911,
-				for_inventory: userToDelete.for_inventory,
-				for_traffic: userToDelete.for_traffic,
-			};
-
-			const response = await axiosClient.put(`api/users/${userId}`, deleteUser, {
-				headers: { "x-api-key": API_KEY },
-			});
-
-			console.log("Delete User API response:", response);
-
-			console.log(`User deleted successfully.`);
-			// emitter.emit("show-toast", { message: "User deleted successfully!", type: "success" });
+			databaseStore.deleteUser(userId);
+			await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate delay for UI update
+			console.log("User deleted successfully:", userToDelete);
 		} catch (error) {
 			console.error("Error deleting user:", error);
 			emitter.emit("show-toast", {
@@ -236,7 +220,6 @@ const confirmDeleteUser = async (confirmed, userId) => {
 			});
 			isLoadingAgain.value = false;
 		} finally {
-			await databaseStore.fetchData();
 			isLoadingAgain.value = false;
 			emitter.emit("show-toast", {
 				message: "User deleted successfully!",
@@ -415,14 +398,13 @@ const toggleCheckbox = async (user, accessId, type) => {
 			for_borrowers: access.for_borrowers,
 			for_offices: access.for_offices,
 			for_users: access.for_users,
-			[type]: access[type] === 1 ? 0 : 1,
+			[type]: access[type] === true ? false : true,
 		};
 
-		await axiosClient.put(`/api/inventory_access/${accessId}`, updateInventoryAccess, {
-			headers: {
-				"x-api-key": API_KEY,
-			},
-		});
+		console.log("Update inventory access data sent:", updateInventoryAccess);
+		databaseStore.updateInventoryAccess(updateInventoryAccess);
+		await new Promise((resolve) => setTimeout(resolve, 500));
+		console.log("Inventory access updated successfully:", updateInventoryAccess);
 
 		const accessIndex = databaseStore.inventoryAccesses.findIndex((inv) => inv.id === accessId && inv.user_id === user.id);
 
@@ -434,7 +416,6 @@ const toggleCheckbox = async (user, accessId, type) => {
 		}
 	} catch (error) {
 		console.error("Error updating inventory access:", error);
-		console.error("Error details:", error.response?.data);
 		emitter.emit("show-toast", {
 			message: "Error updating access. Please try again.",
 			type: "error",

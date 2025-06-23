@@ -87,6 +87,7 @@ const confirmAddUser = async () => {
     isLoading.value = true
 
     const addUser = {
+      id: props.user.id,
       firstName: props.user.firstName,
       middleName: props.user.middleName,
       lastName: props.user.lastName,
@@ -99,17 +100,9 @@ const confirmAddUser = async () => {
 
     console.log("Add copy data sent: ", addUser)
 
-    const response = await axiosClient.put(
-      `/api/users/${props.user.id}`,
-      addUser,
-      {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      }
-    );
-
-    console.log('Add User API response:', response);
+    databaseStore.updateUser(addUser);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log("User updated successfully:", addUser);
 
     // Then create their access permissions
     if (props.user.id) {
@@ -130,13 +123,9 @@ const confirmAddUser = async () => {
 
       console.log("Sending access data:", accessData);
 
-      const accessResponse = await axiosClient.put(`/api/inventory_access/${inventoryAccess.id}`, accessData, {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      });
-
-      console.log("Access creation response:", accessResponse);
+      databaseStore.updateInventoryAccess(accessData);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log("Access updated successfully:", accessData);
         }else {
             // Convert boolean values to 0/1 for the database
       const accessData = {
@@ -152,13 +141,9 @@ const confirmAddUser = async () => {
 
       console.log("Sending access data:", accessData);
 
-      const accessResponse = await axiosClient.post('/api/inventory_access', accessData, {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      });
-
-      console.log("Access creation response:", accessResponse);
+      databaseStore.addInventoryAccess(accessData);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log("Access created successfully:", accessData);
         }
       
     }
@@ -166,10 +151,8 @@ const confirmAddUser = async () => {
     // closeModal()
   } catch (error) {
     console.error('Error adding user:', error);
-    console.error('Error details:', error.response?.data);
     emitter.emit("show-toast", { message: "Error adding user. Please try again.", type: "error" });
   } finally {
-    await databaseStore.fetchData();
     isLoading.value = false;
     emitter.emit("show-toast", { message: "User added successfully!", type: "success" });
     closeModal();

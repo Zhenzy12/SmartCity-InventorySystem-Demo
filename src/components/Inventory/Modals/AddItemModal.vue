@@ -82,7 +82,7 @@ const selectedFileName = ref(null);
 const handleImageUpload = (event) => {
   const file = event.target.files[0];
   selectedImage.value = file;
-  
+
   if (file) {
     previewImage.value = URL.createObjectURL(file);
     selectedFileName.value = file.name;
@@ -321,11 +321,11 @@ const addEquipmentCopies = async (equipmentId) => {
         serial_number: equipmentCopySerialNumber.value
       };
 
-      await axiosClient.post('/api/equipment_copies', copyData, {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      });
+      console.log("🚀 ~ addEquipmentCopies ~ copyData:", copyData)
+
+      databaseStore.addEquipmentCopy(copyData);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log("Equipment copy added successfully:", copyData);
     }
   } catch (error) {
     console.error('Error adding equipment copies:', error);
@@ -342,108 +342,85 @@ const confirmAddItem = async () => {
 
     if (selectedOffice.value === 1) {
       try {
-        const formData = new FormData();
-        formData.append('equipment_name', equipmentName.value);
-        formData.append('equipment_description', equipmentDescription.value);
-        formData.append('category_id', selectedCategory.value);
-        formData.append('isc', equipmentIcs.value)
+        const maxId = databaseStore.officeEquipments.length
+          ? Math.max(...databaseStore.officeEquipments.map(e => e.id))
+          : 0;
+        const equipmentId = maxId + 1;
 
-        if (selectedImage.value) {
-          formData.append('image', selectedImage.value);
-        }
+        const newEquipment = {
+          id: equipmentId,
+          equipment_name: equipmentName.value,
+          equipment_description: equipmentDescription.value,
+          category_id: selectedCategory.value,
+          isc: equipmentIcs.value,
+          image: selectedImage.value || null,
+        };
 
-        const response = await axiosClient.post(
-          `/api/office_equipments/`,
-          formData,
-          {
-            headers: {
-              "x-api-key": API_KEY,
-              "Content-Type": "multipart/form-data"
-            },
-          }
-        );
+        databaseStore.addOfficeEquipment(newEquipment);
 
-        // Use the correct path to the equipment ID
-        if (response.data && response.data.data && response.data.data.equipment && response.data.data.equipment.id) {
-          const equipmentId = response.data.data.equipment.id;
+        await addEquipmentCopies(equipmentId);
 
-          await addEquipmentCopies(equipmentId);
+        equipmentQRCodes.value = Array.from({ length: parseInt(equipmentQuantity.value) }, (_, index) => ({
+          id: equipmentId,
+          copyNumber: index + 1,
+          name: equipmentName.value,
+          description: equipmentDescription.value,
+          categoryId: selectedCategory.value,
+          serialNumber: equipmentCopySerialNumber.value,
+          type: 'equipment'
+        }));
 
-          // Generate QR codes for each equipment copy
-          equipmentQRCodes.value = Array.from({ length: parseInt(equipmentQuantity.value) }, (_, index) => ({
-            id: equipmentId,
-            copyNumber: index + 1,
-            name: equipmentName.value,
-            description: equipmentDescription.value,
-            categoryId: selectedCategory.value,
-            serialNumber: equipmentCopySerialNumber.value,
-            type: 'equipment'
-          }));
-
-          showQRCodes.value = true;
-          console.log('Equipment API response:', response);
-          // emitter.emit("show-toast", { message: "Equipment Added Successfully!", type: "success" });
-          selectedBreadCrumbPhase.value = 3;
-          // isLoading.value = false;
-        } else {
-          console.error('Invalid response structure:', response);
-        }
+        showQRCodes.value = true;
+        console.log('Equipment added to store:', newEquipment);
+        selectedBreadCrumbPhase.value = 3;
       } catch (error) {
         console.error('Error adding equipment:', error);
-        console.error('Error details:', error.response?.data);
         emitter.emit("show-toast", { message: "Error adding equipment. Please try again.", type: "error" });
         selectedBreadCrumbPhase.value = 2;
         isLoading.value = false;
       } finally {
-        await databaseStore.fetchData();
         isLoading.value = false;
         emitter.emit("show-toast", { message: "Equipment Added Successfully!", type: "success" });
       }
     } else if (selectedOffice.value === 2) {
       try {
-        const formData = new FormData();
-        formData.append('supply_name', supplyName.value);
-        formData.append('supply_description', supplyDescription.value);
-        formData.append('category_id', selectedCategory.value);
-        formData.append('supply_quantity', supplyQuantity.value);
-        formData.append('isc', supplyIcs.value);
+        // Generate a unique ID for the new supply
+        const maxId = databaseStore.officeSupplies.length
+          ? Math.max(...databaseStore.officeSupplies.map(s => s.id))
+          : 0;
+        const supplyId = maxId + 1;
 
-        if (selectedImage.value) {
-          formData.append('image', selectedImage.value);
-        }
+        // Build the supply object
+        const newSupply = {
+          id: supplyId,
+          supply_name: supplyName.value,
+          supply_description: supplyDescription.value,
+          category_id: selectedCategory.value,
+          supply_quantity: supplyQuantity.value,
+          isc: supplyIcs.value,
+          image: selectedImage.value || null,
+        };
 
-        const response = await axiosClient.post(
-          `/api/office_supplies/`,
-          formData,
-          {
-            headers: {
-              "x-api-key": API_KEY,
-              "Content-Type": "multipart/form-data"
-            },
-          }
-        );
+        // Add the supply to the store
+        databaseStore.addOfficeSupply(newSupply);
 
         // Generate QR codes for supplies
         equipmentQRCodes.value = [{
-          id: response.data.data.supply.id,
+          id: supplyId,
           name: supplyName.value,
           type: 'supply'
         }];
 
         showQRCodes.value = true;
 
-        console.log('Supply API response:', response, formData);
-        // emitter.emit("show-toast", { message: "Supply Added Successfully!", type: "success" });
+        console.log('Supply added to store:', newSupply);
         selectedBreadCrumbPhase.value = 3;
-        // isLoading.value = false;
       } catch (error) {
         console.error('Error adding supply:', error);
-        console.error('Error details:', error.response?.data);
         emitter.emit("show-toast", { message: "Error adding supply. Please try again.", type: "error" });
         selectedBreadCrumbPhase.value = 2;
         isLoading.value = false;
       } finally {
-        await databaseStore.fetchData();
         isLoading.value = false;
         emitter.emit("show-toast", { message: "Supply Added Successfully!", type: "success" });
       }
@@ -576,28 +553,26 @@ const confirmSupplyAction = (confirmed) => {
                   <!-- EQUIPMENT IMAGE -->
                   <div class="flex flex-col mt-4 mb-2">
                     <div class="mb-1 relative group cursor-pointer">
-                <!-- Single file input - keep this one -->
-                <input type="file" @change="handleImageUpload" class="hidden" id="imageUpload" accept="image/*">
-                <label for="imageUpload" class="cursor-pointer">
-                  <!-- Image preview elements -->
-                  <img v-if="previewImage" :src="previewImage"
-                    class="w-full h-[500px] object-cover rounded-lg mb-2 transition-all duration-300 group-hover:opacity-75"
-                    alt="Preview Image" />
-                  <img v-else-if="currentImagePath && !selectedImage" :src="`${API_BASE_URL}/storage/${currentImagePath}`"
-                    class="w-full h-100 object-cover rounded-lg mb-2 transition-all duration-300 group-hover:opacity-75"
-                    alt="Current Image" />
-                  
-                  <div
-                    class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span class="bg-black bg-opacity-50 text-white px-3 py-1 rounded-lg">Update Image</span>
-                  </div>
-                </label>
-              </div>
-              <div class="relative ml-2 mt-4">
-    <input type="file" 
-      @change="handleImageUpload" 
-      accept="image/*"
-      class="block w-full text-sm text-gray-500
+                      <!-- Single file input - keep this one -->
+                      <input type="file" @change="handleImageUpload" class="hidden" id="imageUpload" accept="image/*">
+                      <label for="imageUpload" class="cursor-pointer">
+                        <!-- Image preview elements -->
+                        <img v-if="previewImage" :src="previewImage"
+                          class="w-full h-[500px] object-cover rounded-lg mb-2 transition-all duration-300 group-hover:opacity-75"
+                          alt="Preview Image" />
+                        <img v-else-if="currentImagePath && !selectedImage"
+                          :src="`${API_BASE_URL}/storage/${currentImagePath}`"
+                          class="w-full h-100 object-cover rounded-lg mb-2 transition-all duration-300 group-hover:opacity-75"
+                          alt="Current Image" />
+
+                        <div
+                          class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span class="bg-black bg-opacity-50 text-white px-3 py-1 rounded-lg">Update Image</span>
+                        </div>
+                      </label>
+                    </div>
+                    <div class="relative ml-2 mt-4">
+                      <input type="file" @change="handleImageUpload" accept="image/*" class="block w-full text-sm text-gray-500
         file:mr-4 file:py-2 file:px-4
         file:rounded-lg file:border-0
         file:text-sm file:font-semibold
@@ -605,9 +580,9 @@ const confirmSupplyAction = (confirmed) => {
         hover:file:bg-gray-700
         dark:file:bg-gray-600 dark:file:hover:bg-gray-500
         file:cursor-pointer">
-  </div>
-            </div>
-          </div>
+                    </div>
+                  </div>
+                </div>
                 <div>
                   <!-- EQUIPMENT NAME -->
                   <div class="flex flex-row mt-4 mb-2">
@@ -723,28 +698,26 @@ const confirmSupplyAction = (confirmed) => {
                   <!-- SUPPLY IMAGE -->
                   <div class="flex flex-col mt-4 mb-2">
                     <div class="mb-1 relative group cursor-pointer">
-                <!-- Single file input - keep this one -->
-                <input type="file" @change="handleImageUpload" class="hidden" id="imageUpload" accept="image/*">
-                <label for="imageUpload" class="cursor-pointer">
-                  <!-- Image preview elements -->
-                  <img v-if="previewImage" :src="previewImage"
-                    class="w-full h-[400px] object-cover rounded-lg mb-2 transition-all duration-300 group-hover:opacity-75"
-                    alt="Preview Image" />
-                  <img v-else-if="currentImagePath && !selectedImage" :src="`${API_BASE_URL}/storage/${currentImagePath}`"
-                    class="w-full h-100 object-cover rounded-lg mb-2 transition-all duration-300 group-hover:opacity-75"
-                    alt="Current Image" />
-                  
-                  <div
-                    class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span class="bg-black bg-opacity-50 text-white px-3 py-1 rounded-lg">Update Image</span>
-                  </div>
-                </label>
-              </div>
-              <div class="relative ml-2 mt-4">
-    <input type="file" 
-      @change="handleImageUpload" 
-      accept="image/*"
-      class="block w-full text-sm text-gray-500
+                      <!-- Single file input - keep this one -->
+                      <input type="file" @change="handleImageUpload" class="hidden" id="imageUpload" accept="image/*">
+                      <label for="imageUpload" class="cursor-pointer">
+                        <!-- Image preview elements -->
+                        <img v-if="previewImage" :src="previewImage"
+                          class="w-full h-[400px] object-cover rounded-lg mb-2 transition-all duration-300 group-hover:opacity-75"
+                          alt="Preview Image" />
+                        <img v-else-if="currentImagePath && !selectedImage"
+                          :src="`${API_BASE_URL}/storage/${currentImagePath}`"
+                          class="w-full h-100 object-cover rounded-lg mb-2 transition-all duration-300 group-hover:opacity-75"
+                          alt="Current Image" />
+
+                        <div
+                          class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <span class="bg-black bg-opacity-50 text-white px-3 py-1 rounded-lg">Update Image</span>
+                        </div>
+                      </label>
+                    </div>
+                    <div class="relative ml-2 mt-4">
+                      <input type="file" @change="handleImageUpload" accept="image/*" class="block w-full text-sm text-gray-500
         file:mr-4 file:py-2 file:px-4
         file:rounded-lg file:border-0
         file:text-sm file:font-semibold
@@ -752,8 +725,8 @@ const confirmSupplyAction = (confirmed) => {
         hover:file:bg-gray-700
         dark:file:bg-gray-600 dark:file:hover:bg-gray-500
         file:cursor-pointer">
-  </div>
-            </div>
+                    </div>
+                  </div>
 
                 </div>
                 <div>

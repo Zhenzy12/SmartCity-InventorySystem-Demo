@@ -84,15 +84,9 @@ const confirmAddCopy = async () => {
 
       console.log("Add copy data sent: ", addCopy)
 
-      const response = await axiosClient.post(
-        `/api/equipment_copies/`,
-        addCopy,
-        {
-          headers: {
-            "x-api-key": API_KEY,
-          },
-        }
-      );
+     databaseStore.addEquipmentCopy(addCopy);
+     await new Promise(resolve => setTimeout(resolve, 500));
+     console.log("Copy added successfully:", addCopy);
 
       // Add QR code data for each new copy
       newQRCodes.push({
@@ -115,10 +109,8 @@ const confirmAddCopy = async () => {
     // closeModal()
   } catch (error) {
     console.error('Error adding copies:', error);
-    console.error('Error details:', error.response?.data);
     emitter.emit("show-toast", { message: "Error adding copies. Please try again.", type: "error" });
   } finally {
-    await databaseStore.fetchData();
     isLoading.value = false;
     emitter.emit("show-toast", { message: "Transaction updated successfully!", type: "success" });
     // closeModal();
@@ -214,7 +206,7 @@ const isClickedShowConfirmationModal = () => {
             Copy Quantity to be Added:
           </label>
           <p class="text-red-700 ml-2 font-semibold italic">{{ errors.copyQuantity?.length ? errors.copyQuantity[0] : ''
-            }}</p>
+          }}</p>
         </div>
         <div class="relative ml-2">
           <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
@@ -225,7 +217,7 @@ const isClickedShowConfirmationModal = () => {
         </div>
       </div>
 
-      
+
       <!-- QUANTITY INPUT -->
       <div class="text-start">
         <div class="flex flex-row mt-4 mb-2">
@@ -233,7 +225,7 @@ const isClickedShowConfirmationModal = () => {
             Serial Number:
           </label>
           <p class="text-red-700 ml-2 font-semibold italic">{{ errors.serialNumber?.length ? errors.serialNumber[0] : ''
-            }}</p>
+          }}</p>
         </div>
         <div class="relative ml-2">
           <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
