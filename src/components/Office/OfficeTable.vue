@@ -181,28 +181,13 @@ const confirmDeleteOffice = async (confirmed, officeId) => {
     if (confirmed) {
         isLoadingAgain.value = true
         try {
-            const deleteOffice = {
-                is_deleted: 1,
-                deleted_by: user.value.id,
-            }
-
-            const response = await axiosClient.put(`api/offices/${officeId}`, deleteOffice,
-                {
-                    headers: { 'x-api-key': API_KEY },
-                });
-
-            console.log('Delete Office API response:', response);
-
-            databaseStore.officeList = databaseStore.officeList.filter(office => office.id !== officeId);
-
-            console.log(`Office deleted successfully.`);
-            // emitter.emit("show-toast", { message: "Category deleted successfully!", type: "success" });
+            databaseStore.deleteOffice(officeId, user.value.id);
+            await new Promise(resolve => setTimeout(resolve, 500));
         } catch (error) {
             console.error('Error deleting office:', error);
             emitter.emit("show-toast", { message: "Error deleting office. Please try again.", type: "error" });
             isLoadingAgain.value = false
         } finally {
-            await databaseStore.fetchData();
             emitter.emit("show-toast", { message: "Office deleted successfully!", type: "success" });
             showDeleteConfirmationModal.value = false; // Close the modal
             isLoadingAgain.value = false

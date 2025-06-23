@@ -32,20 +32,13 @@ const updateItemAvailability = async () => {
     for (const item of props.transactionItems) {
       if (item.item_type === "Equipment Copy" && item.transaction_id === props.transaction.id) {
         const updateTransactionItems = {
+          id: item.item_copy_id,
           is_available: true,
         };
 
-        const response = await axiosClient.put(
-          `/api/equipment_copies/${item.item_copy_id}`,
-          updateTransactionItems,
-          {
-            headers: {
-              "x-api-key": API_KEY,
-            },
-          }
-        );
-
-        console.log("Updated Equipment Copy successfully:", response.data);
+        databaseStore.updateEquipmentCopy(updateTransactionItems);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log("Updating Equipment Copy:", item.item_copy_id);
       } else if (item.item_type === "Office Supply" && item.transaction_id === props.transaction.id) {
         const officeSupply = props.officeSupplies?.find(
           (office_supply) => office_supply.id === item.item_copy_id
@@ -53,28 +46,20 @@ const updateItemAvailability = async () => {
         const newQuantity = officeSupply.supply_quantity + item.quantity
 
         const updateTransactionItems = {
+          id: item.item_copy_id,
           supply_quantity: newQuantity,
         };
 
-        const response = await axiosClient.put(
-          `/api/office_supplies/${item.item_copy_id}`,
-          updateTransactionItems,
-          {
-            headers: {
-              "x-api-key": API_KEY,
-            },
-          }
-        );
-        console.log("Updated Office Supply successfully:", response.data);
+        databaseStore.updateOfficeSupply(updateTransactionItems);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log("Updating Office Supply:", item.item_copy_id);
       }
     }
   } catch (error) {
     console.error("Error updating items:", error);
   } finally {
-    await databaseStore.fetchData();
     isLoading.value = false;
-    emitter.emit("show-toast", { message: "Transaction deleted successfully!", type: "success" });
-    closeModal();
+    
   }
 };
 
@@ -100,27 +85,20 @@ const confirmDelete = async () => {
       is_deleted: true,
     };
 
-    const response = await axiosClient.put(
-      `/api/borrow_transactions/${props.transaction.id}`,
-      updateData,
-      {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      }
-    );
-
-    if (response.data.success) {
-      emit('confirmDelete', response.data.data)
-      closeModal()
-      emitter.emit("show-toast", { message: "Transaction deleted successfully!", type: "success" });
-    }
+    databaseStore.updateTransactionHistory({
+  id: props.transaction.id,
+  ...updateData
+});
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log("Transaction updated successfully:", updateData);
   } catch (error) {
     console.error('Error deleting transaction:', error)
     emitter.emit("show-toast", { message: "Error deleting transaction. Please try again.", type: "error" });
   } finally {
     updateItemAvailability()
     isLoading.value = false
+    emitter.emit("show-toast", { message: "Transaction deleted successfully!", type: "success" });
+    closeModal();
   }
 }
 

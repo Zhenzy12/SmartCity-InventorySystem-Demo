@@ -343,19 +343,14 @@ const confirmUpdate = async () => {
 const updateOfficeSupply = async (newQuantity, item) => {
     try {
         const updateTransactionItems = {
+            id: item.item_copy_id,
             supply_quantity: newQuantity,
         };
 
-        const response = await axiosClient.put(
-            `/api/office_supplies/${item.item_copy_id}`,
-            updateTransactionItems,
-            {
-                headers: {
-                    "x-api-key": API_KEY,
-                },
-            }
-        );
-        console.log("Updated Office Supply successfully:", response.data);
+        databaseStore.updateOfficeSupply(updateTransactionItems);
+        await new Promise(resolve => setTimeout(resolve, 500));
+
+        console.log("Updated Office Supply successfully:", updateTransactionItems);
     } catch (error) {
         console.error('Error updating office supply:', error);
         console.error('Error details:', error.response?.data);
@@ -366,20 +361,13 @@ const updateEquipment = async (availability, item) => {
     try {
 
         const updateTransactionItems = {
+            id: item.item_copy_id,
             is_available: availability,
         };
 
-        const response = await axiosClient.put(
-            `/api/equipment_copies/${item.item_copy_id}`,
-            updateTransactionItems,
-            {
-                headers: {
-                    "x-api-key": API_KEY,
-                },
-            }
-        );
-
-        console.log("Updated Equipment Copy successfully:", response.data);
+        databaseStore.updateEquipmentCopy(updateTransactionItems);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log("Updated Equipment Copy successfully:", updateTransactionItems);
 
     } catch (error) {
         console.error('Error updating item copy:', error);
@@ -417,47 +405,40 @@ const confirmCreateTransaction = async () => {
                 office.office_name.toLowerCase() === borrowerOfficeInput.value.toLowerCase()
             )?.id;
 
-            // Create new borrower
-            const borrowerResponse = await axiosClient.post(
-                '/api/borrowers',
-                {
-                    borrowers_name: borrowerInput.value,
-                    borrowers_contact: borrowerContactInput.value,
-                    office_id: officeId,
-                    is_deleted: false,
-                    deleted_by: null
-                },
-                {
-                    headers: {
-                        "x-api-key": API_KEY,
-                    },
-                }
-            );
+            const newBorrowerId =
+                Math.max(0, ...borrowersArray.value.map(b => b.id || 0)) + 1;
 
-            borrowerId = borrowerResponse.data.data.id;
+            const newBorrower = {
+                id: newBorrowerId,
+                borrowers_name: borrowerInput.value,
+                borrowers_contact: borrowerContactInput.value,
+                office_id: officeId,
+                is_deleted: 0,
+                deleted_by: null,
+            };
+
+            databaseStore.addBorrower(newBorrower);
+            borrowerId = newBorrowerId;
         }
 
         const currentDate = new Date();
         const formattedDate = formatDateForMySQL(currentDate);
 
-        // Create borrow transaction with confirmed borrower ID
-        const transactionResponse = await axiosClient.post(
-            '/api/borrow_transactions',
-            {
-                borrower_id: borrowerId,
-                lender_id: lenderInput.value,
-                isc: iscInput.value,
-                remarks: remarksInput.value,
-                borrow_date: formattedDate
-            },
-            {
-                headers: {
-                    "x-api-key": API_KEY,
-                },
-            }
-        );
+        const newTransactionId =
+            Math.max(0, ...databaseStore.transactionHistory.map(t => t.id || 0)) + 1;
 
-        const transactionId = transactionResponse.data.data.id;
+        const newTransaction = {
+            id: newTransactionId,
+            borrower_id: borrowerId,
+            lender_id: lenderInput.value,
+            isc: iscInput.value,
+            remarks: remarksInput.value,
+            borrow_date: formattedDate,
+            // Add other fields as needed (e.g., returned, returned_date, etc.)
+        };
+
+        databaseStore.addTransactionHistory(newTransaction);
+        const transactionId = newTransactionId;
 
         // Format items for transaction
         const formattedItems = selectedItems.value.map(item => ({
@@ -469,18 +450,18 @@ const confirmCreateTransaction = async () => {
         }));
 
         // Create transaction items
-        await axiosClient.post(
-            '/api/borrow_transaction_items',
-            {
+        formattedItems.forEach(item => {
+            const newTransactionItemId =
+                Math.max(0, ...databaseStore.transactionItems.map(ti => ti.id || 0)) + 1;
+
+            const newTransactionItem = {
+                id: newTransactionItemId,
                 transaction_id: transactionId,
-                items: formattedItems
-            },
-            {
-                headers: {
-                    "x-api-key": API_KEY,
-                },
-            }
-        );
+                ...item
+            };
+
+            databaseStore.addTransactionItem(newTransactionItem);
+        });
 
     } catch (error) {
         // console.error('Transaction error:', error);
@@ -497,7 +478,6 @@ const confirmCreateTransaction = async () => {
         // });
     } finally {
         await confirmUpdate();
-        await databaseStore.fetchData();
         isLoading.value = false;
         emitter.emit("show-toast", { message: "Transaction created successfully!", type: "success" });
         closeModal();
@@ -706,136 +686,140 @@ watch(() => borrowerOfficeInput.value, (newValue) => {
                             </tbody>
                         </table>
                     </div>
-<div class="mt-2 overflow-y-auto max-h-[36vh] xl:max-h-[38vh] 2xl:max-h-[39vh] [scrollbar-width:thin] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-                    <!-- BORROWER -->
-                    <div class="flex flex-row mb-2">
-                        <label class="block text font-medium text-gray-900 dark:text-gray-200">
-                            Type Borrower: {{ borrowerInput }}
-                        </label>
-                        <p class="text-red-700 ml-2 font-semibold italic">{{ errors.borrowerInput ?
-                            errors.borrowerInput[0] :
-                            '' }}
-                        </p>
-                    </div>
-
-                    <div class="relative ml-2">
-                        <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                            <BxSolidUser />
+                    <div
+                        class="mt-2 overflow-y-auto max-h-[36vh] xl:max-h-[38vh] 2xl:max-h-[39vh] [scrollbar-width:thin] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+                        <!-- BORROWER -->
+                        <div class="flex flex-row mb-2">
+                            <label class="block text font-medium text-gray-900 dark:text-gray-200">
+                                Type Borrower: {{ borrowerInput }}
+                            </label>
+                            <p class="text-red-700 ml-2 font-semibold italic">{{ errors.borrowerInput ?
+                                errors.borrowerInput[0] :
+                                '' }}
+                            </p>
                         </div>
 
-                        <!-- Input Field -->
-                        <input type="text" v-model="borrowerInput" @focus="showBorrowerListDropdown = true"
-                            @blur="hideBorrowerDropdownWithDelay" @keydown.enter.prevent="selectBorrower(borrowerInput)"
-                            placeholder="Search or enter new borrower..."
-                            class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
+                        <div class="relative ml-2">
+                            <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                                <BxSolidUser />
+                            </div>
 
-                        <!-- Dropdown List -->
-                        <ul v-if="showBorrowerListDropdown && filteredBorrowers.length"
-                            class="absolute ml-5 w-[92%] border rounded-lg shadow-lg mt-1 z-10 max-h-37 overflow-y-auto bg-white border-gray-300 dark:bg-gray-800">
-                            <li v-for="borrower in filteredBorrowers" :key="borrower.id"
-                                @mousedown="selectBorrower(borrower.borrowers_name)"
-                                class="p-2 hover:bg-blue-100 cursor-pointer">
-                                {{ borrower.borrowers_name }}
-                            </li>
-                        </ul>
-                    </div>
+                            <!-- Input Field -->
+                            <input type="text" v-model="borrowerInput" @focus="showBorrowerListDropdown = true"
+                                @blur="hideBorrowerDropdownWithDelay"
+                                @keydown.enter.prevent="selectBorrower(borrowerInput)"
+                                placeholder="Search or enter new borrower..."
+                                class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" />
 
-                    <!-- BORROWER CONTACT -->
-                    <div class="flex flex-row mt-2 mb-2">
-                        <label class="block text font-medium text-gray-900 dark:text-gray-200">Type
-                            Borrower Contact:</label>
-                        <p class="text-red-700 ml-2 font-semibold italic">{{ errors.borrowerContactInput ?
-                            errors.borrowerContactInput[0] :
-                            '' }}</p>
-                    </div>
-
-                    <div class="relative ml-2">
-                        <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                            <AkTextAlignLeft />
+                            <!-- Dropdown List -->
+                            <ul v-if="showBorrowerListDropdown && filteredBorrowers.length"
+                                class="absolute ml-5 w-[92%] border rounded-lg shadow-lg mt-1 z-10 max-h-37 overflow-y-auto bg-white border-gray-300 dark:bg-gray-800">
+                                <li v-for="borrower in filteredBorrowers" :key="borrower.id"
+                                    @mousedown="selectBorrower(borrower.borrowers_name)"
+                                    class="p-2 hover:bg-blue-100 cursor-pointer">
+                                    {{ borrower.borrowers_name }}
+                                </li>
+                            </ul>
                         </div>
-                        <input type="tel" v-model="borrowerContactInput" pattern="(09|\+63)[0-9]{9}" maxlength="13"
-                            oninput="this.value = this.value.replace(/[^0-9+]/g, '')"
-                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            placeholder="Ex. Printer, Chair, Stairs" :disabled="!borrowerInfoAllowedInput"
-                            :class="!borrowerInfoAllowedInput ? ' dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-gray-500' : ' dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white '">
-                    </div>
 
-                    <!-- BORROWER OFFICE -->
-                    <div class="flex flex-row mt-2 mb-2">
-                        <label class="block text font-medium text-gray-900 dark:text-gray-200">Type
-                            Borrower Office:</label>
-                        <p class="text-red-700 ml-2 font-semibold italic">{{ errors.borrowerOfficeInput ?
-                            errors.borrowerOfficeInput[0] :
-                            '' }}</p>
-                    </div>
-
-                    <div class="relative ml-2">
-                        <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                            <BxSolidUser />
+                        <!-- BORROWER CONTACT -->
+                        <div class="flex flex-row mt-2 mb-2">
+                            <label class="block text font-medium text-gray-900 dark:text-gray-200">Type
+                                Borrower Contact:</label>
+                            <p class="text-red-700 ml-2 font-semibold italic">{{ errors.borrowerContactInput ?
+                                errors.borrowerContactInput[0] :
+                                '' }}</p>
                         </div>
-                        <input type="text" v-model="borrowerOfficeInput" @focus="showBorrowerOfficeListDropdown = true"
-                            @blur="hideBorrowerOfficeDropdownWithDelay"
-                            @keydown.enter.prevent="selectBorrowerOffice(borrowerOfficeInput)"
-                            placeholder="Search or enter new Borrower Office..."
-                            class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            :disabled="!borrowerInfoAllowedInput"
-                            :class="!borrowerInfoAllowedInput ? ' dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-gray-500' : ' dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white '">
 
-                        <!-- Dropdown List -->
-                        <ul v-if="showBorrowerOfficeListDropdown && filteredBorrowerOffice.length"
-                            class="absolute ml-5 w-[92%] border rounded-lg shadow-lg mt-1 z-10 max-h-37 overflow-y-auto bg-white border-gray-300 dark:bg-gray-800">
-                            <li v-for="office in filteredBorrowerOffice" :key="office.id"
-                                @mousedown="selectBorrowerOffice(office.office_name)"
-                                class="p-2 hover:bg-blue-100 cursor-pointer">
-                                {{ office.office_name }}
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- ISC/AREE -->
-                    <div class="flex flex-row mt-2 mb-2">
-                        <label class="block text font-medium text-gray-900 dark:text-gray-200">Type
-                            ISC/AREE:</label>
-                        <p class="text-red-700 ml-2 font-semibold italic">{{ errors.iscInput ? errors.iscInput[0] :
-                            '' }}</p>
-                    </div>
-                    <div class="relative ml-2">
-                        <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                            <BxSolidUser />
+                        <div class="relative ml-2">
+                            <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                                <AkTextAlignLeft />
+                            </div>
+                            <input type="tel" v-model="borrowerContactInput" pattern="(09|\+63)[0-9]{9}" maxlength="13"
+                                oninput="this.value = this.value.replace(/[^0-9+]/g, '')"
+                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Ex. Printer, Chair, Stairs" :disabled="!borrowerInfoAllowedInput"
+                                :class="!borrowerInfoAllowedInput ? ' dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-gray-500' : ' dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white '">
                         </div>
-                        <input type="text" v-model="iscInput" @focus="showIscListDropdown = true"
-                            @blur="hideIscDropdownWithDelay" @keydown.enter.prevent="selectIsc(iscInput)"
-                            placeholder="Search or enter new ICS/AREE..."
-                            class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
 
-                        <!-- Dropdown List -->
-                        <ul v-if="showIscListDropdown && filteredIsc.length"
-                            class="absolute ml-5 w-[92%] border rounded-lg shadow-lg mt-1 z-10 max-h-37 overflow-y-auto bg-white border-gray-300 dark:bg-gray-800">
-                            <li v-for="transaction in filteredIsc" :key="transaction.id"
-                                @mousedown="selectIsc(transaction.isc)" class="p-2 hover:bg-blue-100 cursor-pointer">
-                                {{ transaction.isc }}
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- REMARKS -->
-                    <div class="flex flex-row mt-2 mb-2">
-                        <label class="block text font-medium text-gray-900 dark:text-gray-200">Type
-                            Remarks:</label>
-                        <p class="text-red-700 ml-2 font-semibold italic">{{ errors.remarksInput ?
-                            errors.remarksInput[0] :
-                            '' }}</p>
-                    </div>
-
-                    <div class="relative ml-2">
-                        <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
-                            <AkTextAlignLeft />
+                        <!-- BORROWER OFFICE -->
+                        <div class="flex flex-row mt-2 mb-2">
+                            <label class="block text font-medium text-gray-900 dark:text-gray-200">Type
+                                Borrower Office:</label>
+                            <p class="text-red-700 ml-2 font-semibold italic">{{ errors.borrowerOfficeInput ?
+                                errors.borrowerOfficeInput[0] :
+                                '' }}</p>
                         </div>
-                        <input type="text" v-model="remarksInput"
-                            class="min-h-11 max-h-11 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                            placeholder="Enter Remarks">
+
+                        <div class="relative ml-2">
+                            <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                                <BxSolidUser />
+                            </div>
+                            <input type="text" v-model="borrowerOfficeInput"
+                                @focus="showBorrowerOfficeListDropdown = true"
+                                @blur="hideBorrowerOfficeDropdownWithDelay"
+                                @keydown.enter.prevent="selectBorrowerOffice(borrowerOfficeInput)"
+                                placeholder="Search or enter new Borrower Office..."
+                                class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                :disabled="!borrowerInfoAllowedInput"
+                                :class="!borrowerInfoAllowedInput ? ' dark:bg-gray-900 dark:border-gray-700 dark:placeholder-gray-400 dark:text-gray-500' : ' dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white '">
+
+                            <!-- Dropdown List -->
+                            <ul v-if="showBorrowerOfficeListDropdown && filteredBorrowerOffice.length"
+                                class="absolute ml-5 w-[92%] border rounded-lg shadow-lg mt-1 z-10 max-h-37 overflow-y-auto bg-white border-gray-300 dark:bg-gray-800">
+                                <li v-for="office in filteredBorrowerOffice" :key="office.id"
+                                    @mousedown="selectBorrowerOffice(office.office_name)"
+                                    class="p-2 hover:bg-blue-100 cursor-pointer">
+                                    {{ office.office_name }}
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- ISC/AREE -->
+                        <div class="flex flex-row mt-2 mb-2">
+                            <label class="block text font-medium text-gray-900 dark:text-gray-200">Type
+                                ISC/AREE:</label>
+                            <p class="text-red-700 ml-2 font-semibold italic">{{ errors.iscInput ? errors.iscInput[0] :
+                                '' }}</p>
+                        </div>
+                        <div class="relative ml-2">
+                            <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                                <BxSolidUser />
+                            </div>
+                            <input type="text" v-model="iscInput" @focus="showIscListDropdown = true"
+                                @blur="hideIscDropdownWithDelay" @keydown.enter.prevent="selectIsc(iscInput)"
+                                placeholder="Search or enter new ICS/AREE..."
+                                class="bg-gray-50 mb-2 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+
+                            <!-- Dropdown List -->
+                            <ul v-if="showIscListDropdown && filteredIsc.length"
+                                class="absolute ml-5 w-[92%] border rounded-lg shadow-lg mt-1 z-10 max-h-37 overflow-y-auto bg-white border-gray-300 dark:bg-gray-800">
+                                <li v-for="transaction in filteredIsc" :key="transaction.id"
+                                    @mousedown="selectIsc(transaction.isc)"
+                                    class="p-2 hover:bg-blue-100 cursor-pointer">
+                                    {{ transaction.isc }}
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- REMARKS -->
+                        <div class="flex flex-row mt-2 mb-2">
+                            <label class="block text font-medium text-gray-900 dark:text-gray-200">Type
+                                Remarks:</label>
+                            <p class="text-red-700 ml-2 font-semibold italic">{{ errors.remarksInput ?
+                                errors.remarksInput[0] :
+                                '' }}</p>
+                        </div>
+
+                        <div class="relative ml-2">
+                            <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
+                                <AkTextAlignLeft />
+                            </div>
+                            <input type="text" v-model="remarksInput"
+                                class="min-h-11 max-h-11 bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                placeholder="Enter Remarks">
+                        </div>
                     </div>
-</div>
                     <!-- Action Buttons -->
                     <div class="-mx-3 flex flex-wrap mt-4">
                         <div class="w-1/2 px-3">

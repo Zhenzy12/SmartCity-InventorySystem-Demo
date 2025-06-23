@@ -94,6 +94,8 @@ const confirmRecoverBorrowers = async () => {
                 is_deleted: 0,
                 deleted_by: null
             }
+            console.log("Recovering borrower data sent: ", updateBorrower);
+            
             databaseStore.restoreBorrower(borrower.id, updateBorrower);
 
             await new Promise(resolve => setTimeout(resolve, 500));
