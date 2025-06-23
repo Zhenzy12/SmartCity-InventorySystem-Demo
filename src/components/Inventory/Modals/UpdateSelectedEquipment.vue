@@ -106,30 +106,19 @@ const confirmUpdateEquipment = async () => {
   try {
     isLoading.value = true;
 
-    const formData = new FormData();
-    formData.append("equipment_name", equipmentName.value);
-    formData.append("equipment_description", equipmentDescription.value);
-    formData.append("category_id", selectedCategory.value);
-    formData.append("isc", ics.value)
+    const updateData = {
+      id: props.selectedItems.id,
+      equipment_name: equipmentName.value,
+      equipment_description: equipmentDescription.value,
+      category_id: selectedCategory.value,
+      isc: ics.value,
+      image_path: selectedImage.value ? selectedImage.value : currentImagePath.value, // Keep the current image path if no new image is uploaded
+    };
 
-    if (selectedImage.value) {
-      formData.append("image", selectedImage.value);
-    }
+    databaseStore.updateOfficeEquipment(updateData);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log("Equipment updated successfully:", updateData);
 
-    formData.append("_method", "PUT");
-
-    console.log("Update equipment data sent: ", formData);
-
-    const response = await axiosClient.post(
-      `/api/office_equipments/${props.selectedItems.id}`,
-      formData,
-      {
-        headers: {
-          "x-api-key": API_KEY,
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
     // Generate QR codes for each copy
     generatedQRCodes.value = props.selectedCopy.map((copy, index) => ({
       id: props.selectedItems.id,
@@ -141,15 +130,13 @@ const confirmUpdateEquipment = async () => {
       type: 'equipment'
     }));
 
-    console.log('Update Equipment API response:', response);
+    console.log("Generated QR Codes: ", generatedQRCodes.value);
     // emitter.emit("show-toast", { message: "Equipment updated successfully!", type: "success" });
     // closeModal()
   } catch (error) {
     console.error('Error updating equipment:', error);
-    console.error('Error details:', error.response?.data);
     emitter.emit("show-toast", { message: "Error updating equipment. Please try again.", type: "error" });
   } finally {
-    await databaseStore.fetchData();
     isLoading.value = false;
     emitter.emit("show-toast", { message: "Equipment updated successfully!", type: "success" });
     showQRCodes.value = true;

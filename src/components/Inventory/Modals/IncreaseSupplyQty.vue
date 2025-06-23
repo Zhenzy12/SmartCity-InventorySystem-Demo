@@ -63,20 +63,16 @@ const confirmUpdateQty = async () => {
   try {
     isLoading.value = true;
     const updateQty = {
+      id: props.selectedItems.id,
       supply_quantity: props.selectedItems.supply_quantity + supplyQty.value
     }
 
     console.log("Update supply quantity data sent: ", updateQty)
 
-    const response = await axiosClient.put(
-      `/api/office_supplies/${props.selectedItems.id}`,
-      updateQty,
-      {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      }
-    );
+    databaseStore.updateOfficeSupply(updateQty);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log("Supply quantity updated successfully:", updateQty);
+    
 
     // Generate QR codes after successful update
     generatedQRCodes.value = [{
@@ -89,15 +85,12 @@ const confirmUpdateQty = async () => {
     }];
 
     showQRCodes.value = true;
-    console.log('Update office Quantity API response:', response);
-    // emitter.emit("show-toast", { message: "Office Quantity updated successfully!", type: "success" });
-    // closeModal()
+    console.log("Generated QR Codes: ", generatedQRCodes.value);
+
   } catch (error) {
     console.error('Error updating office quantity:', error);
-    console.error('Error details:', error.response?.data);
     emitter.emit("show-toast", { message: "Error updating office quantity. Please try again.", type: "error" });
   } finally {
-    await databaseStore.fetchData();
     isLoading.value = false;
     emitter.emit("show-toast", { message: "Office Quantity updated successfully!", type: "success" });
     // closeModal();
