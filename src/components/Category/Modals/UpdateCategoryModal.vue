@@ -64,29 +64,21 @@ const confirmUpdateCategory = async () => {
         isLoading.value = true
 
         const updateCategory = {
+            id: props.category.id,
             category_name: categoryName.value
         }
 
         console.log("Add copy data sent: ", updateCategory)
 
-        const response = await axiosClient.put(
-            `/api/categories/${props.category.id}`,
-            updateCategory,
-            {
-                headers: {
-                    "x-api-key": API_KEY,
-                },
-            }
-        );
-        console.log('Update Category API response:', response);
-        // emitter.emit("show-toast", { message: "Copy/Copies updated successfully!", type: "success" });
-        // closeModal()
+         databaseStore.updateCategory(updateCategory)
+
+        await new Promise(resolve => setTimeout(resolve, 500));
+
     } catch (error) {
         console.error('Error updating category:', error);
         console.error('Error details:', error.response?.data);
         emitter.emit("show-toast", { message: "Error updating category. Please try again.", type: "error" });
     } finally {
-        await databaseStore.fetchData();
         isLoading.value = false;
         emitter.emit("show-toast", { message: "Copy updated successfully!", type: "success" });
         closeModal();

@@ -11,6 +11,8 @@ import mockOfficeSuppliesData from "../data/mockOfficeSuppliesData.json";
 import mockTransactionHistoryData from "../data/mockTransactionHistoryData.json";
 import mockTransactionItemsData from "../data/mockTransactionItemsData.json";
 
+
+
 export const useDatabaseStore = defineStore("database", {
   state: () => ({
     officeEquipments: [],
@@ -69,6 +71,35 @@ export const useDatabaseStore = defineStore("database", {
       if (index !== -1) {
         this.borrowers[index].is_deleted = 0;
         this.borrowers[index].deleted_by = null;
+        this.borrowers[index].updated_at = new Date().toLocaleDateString()
+      }
+    },
+    // crud for category
+    addCategory(category) {
+      this.categoryList.push(category);
+    },
+    updateCategory(updatedCategory) {
+      const index = this.categoryList.findIndex(
+        (c) => c.id === updatedCategory.id
+      );
+      if (index !== -1) {
+        this.categoryList[index] = {
+          ...this.categoryList[index],
+          ...updatedCategory,
+        };
+      }
+    },
+    deleteCategory(categoryId) {
+      const index = this.categoryList.findIndex((c) => c.id === categoryId);
+      if (index !== -1) {
+        this.categoryList[index].is_deleted = 1;
+        this.categoryList[index].updated_at = new Date().toLocaleDateString() // Example deleted by user
+      }
+    },
+    restoreCategory(categoryId) {
+      const index = this.categoryList.findIndex((c) => c.id === categoryId);
+      if (index !== -1) {
+        this.categoryList[index].is_deleted = 0;
       }
     },
   },
