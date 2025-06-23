@@ -9,6 +9,7 @@ import { RaCross2 } from '@kalimahapps/vue-icons';
 import { useDatabaseStore } from "../../../stores/databaseStore";
 import Loading from "../../Loading.vue";
 
+
 import emitter from "../../../eventBus";
 const API_KEY = import.meta.env.VITE_API_KEY;
 
@@ -94,19 +95,12 @@ const confirmUpdate = async () => {
 const updateOfficeSupply = async (newQuantity, item) => {
   try {
     const updateTransactionItems = {
+      id:item.item_copy_id,
       supply_quantity: newQuantity,
     };
-
-    const response = await axiosClient.put(
-      `/api/office_supplies/${item.item_copy_id}`,
-      updateTransactionItems,
-      {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      }
-    );
-    console.log("Updated Office Supply successfully:", response.data);
+    databaseStore.updateOfficeSupply(updateTransactionItems);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log("Updated Office Supply successfully:", updateTransactionItems);
   } catch (error) {
     console.error('Error updating office supply:', error);
     console.error('Error details:', error.response?.data);
@@ -117,20 +111,13 @@ const updateEquipment = async (availability, item) => {
   try {
 
     const updateTransactionItems = {
+      id: item.item_copy_id,
       is_available: availability,
     };
 
-    const response = await axiosClient.put(
-      `/api/equipment_copies/${item.item_copy_id}`,
-      updateTransactionItems,
-      {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      }
-    );
-
-    console.log("Updated Equipment Copy successfully:", response.data);
+    databaseStore.updateEquipmentCopy(updateTransactionItems);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log("Updated Equipment Copy successfully:", updateTransactionItems);
 
   } catch (error) {
     console.error('Error updating item copy:', error);
@@ -155,24 +142,18 @@ const updateBorrowTransaction = async (date) => {
       : date;
 
     const updateTransactions = {
+      id: props.transaction.id,
       return_date: formattedDate
     }
 
-    const response = await axiosClient.put(
-      `/api/borrow_transactions/${props.transaction.id}`,
-      updateTransactions,
-      {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      }
-    );
-    console.log("Updated Transaction Item successfully:", response.data);
+    databaseStore.updateTransactionHistory(updateTransactions);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log("Updated Transaction successfully:", updateTransactions);
+
   } catch (error) {
     console.error('Error updating transaction item:', error);
     console.error('Error details:', error.response?.data);
   } finally {
-    await databaseStore.fetchData();
     isLoading.value = false;
     emitter.emit("show-toast", { message: "Transaction updated successfully!", type: "success" });
     closeModal();
@@ -200,29 +181,15 @@ const updateItems = async (date, returned, item) => {
 
     // Simplify the update data structure
     const updateData = {
+      id: item.id,
       returned: returned,
       returned_date: formattedDate,
     };
 
-    console.log('Sending update request with data:', updateData);
+    databaseStore.updateTransactionItem(updateData);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log("Updated Transaction Item successfully:", updateData);
 
-    const response = await axiosClient.put(
-      `/api/borrow_transaction_items/${item.id}`,
-      updateData,
-      {
-        headers: {
-          "x-api-key": API_KEY,
-          "Content-Type": "application/json",
-          "Accept": "application/json"
-        },
-      }
-    );
-
-    console.log('Server response:', response);
-
-    if (response.data) {
-      emit('confirmDelete', response.data);
-    }
   } catch (error) {
     console.error('Error details:', {
       message: error.message,

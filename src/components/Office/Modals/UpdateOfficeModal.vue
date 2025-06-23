@@ -64,29 +64,20 @@ const confirmUpdateOffice = async () => {
         isLoading.value = true
 
         const updateOffice = {
+            id: props.office.id,
             office_name: officeName.value
         }
 
         console.log("Add copy data sent: ", updateOffice)
 
-        const response = await axiosClient.put(
-            `/api/offices/${props.office.id}`,
-            updateOffice,
-            {
-                headers: {
-                    "x-api-key": API_KEY,
-                },
-            }
-        );
-        console.log('Update Office API response:', response);
-        // emitter.emit("show-toast", { message: "Copy/Copies updated successfully!", type: "success" });
-        // closeModal()
+        databaseStore.updateOffice(updateOffice);
+        await new Promise(resolve => setTimeout(resolve, 500));
+
     } catch (error) {
         console.error('Error updating office:', error);
         console.error('Error details:', error.response?.data);
         emitter.emit("show-toast", { message: "Error updating office. Please try again.", type: "error" });
     } finally {
-        await databaseStore.fetchData();
         isLoading.value = false;
         emitter.emit("show-toast", { message: "Copy updated successfully!", type: "success" });
         closeModal();

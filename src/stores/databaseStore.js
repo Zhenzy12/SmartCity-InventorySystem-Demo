@@ -93,13 +93,133 @@ export const useDatabaseStore = defineStore("database", {
       const index = this.categoryList.findIndex((c) => c.id === categoryId);
       if (index !== -1) {
         this.categoryList[index].is_deleted = 1;
-        this.categoryList[index].updated_at = new Date().toLocaleDateString() // Example deleted by user
+        this.categoryList[index].updated_at = new Date().toLocaleDateString()
       }
     },
     restoreCategory(categoryId) {
       const index = this.categoryList.findIndex((c) => c.id === categoryId);
       if (index !== -1) {
         this.categoryList[index].is_deleted = 0;
+      }
+    },
+    // CRUD for offices
+    addOffice(office) {
+      this.officeList.push(office);
+    },
+    updateOffice(updatedOffice) {
+      const index = this.officeList.findIndex(
+        (o) => o.id === updatedOffice.id
+      );
+      if (index !== -1) {
+        this.officeList[index] = {
+          ...this.officeList[index],
+          ...updatedOffice,
+        };
+      }
+    },
+    deleteOffice(officeId) {
+      const index = this.officeList.findIndex((o) => o.id === officeId);
+      if (index !== -1) {
+        this.officeList[index].is_deleted = 1;
+        this.officeList[index].updated_at = new Date().toLocaleDateString()
+      }
+    },
+    restoreOffice(officeId) {
+      const index = this.officeList.findIndex((o) => o.id === officeId);
+      if (index !== -1) {
+        this.officeList[index].is_deleted = 0;
+      }
+    },
+    // CRUD for office supplies
+    addOfficeSupply(officeSupply) {
+      this.officeSupplies.push(officeSupply);
+    },
+    updateOfficeSupply(updatedOfficeSupply) {
+      const index = this.officeSupplies.findIndex(
+        (os) => os.id === updatedOfficeSupply.id
+      );
+      if (index !== -1) {
+        this.officeSupplies[index] = {
+          ...this.officeSupplies[index],
+          ...updatedOfficeSupply,
+        };
+      }
+    },
+    deleteOfficeSupply(officeSupplyId) {
+      const index = this.officeSupplies.findIndex(
+        (os) => os.id === officeSupplyId
+      );
+      if (index !== -1) {
+        this.officeSupplies.splice(index, 1);
+      }
+    },
+    // CRUD for equipment copies
+    addEquipmentCopy(equipmentCopy) {
+      this.equipmentCopies.push(equipmentCopy);
+    },
+    updateEquipmentCopy(updatedEquipmentCopy) {
+      const index = this.equipmentCopies.findIndex(
+        (ec) => ec.id === updatedEquipmentCopy.id
+      );
+      if (index !== -1) {
+        this.equipmentCopies[index] = {
+          ...this.equipmentCopies[index],
+          ...updatedEquipmentCopy,
+        };
+      }
+    },
+    deleteEquipmentCopy(equipmentCopyId) {
+      const index = this.equipmentCopies.findIndex(
+        (ec) => ec.id === equipmentCopyId
+      );
+      if (index !== -1) {
+        this.equipmentCopies.splice(index, 1);
+      }
+    },
+    // CRUD for transaction items
+    addTransactionItem(transactionItem) {
+      this.transactionItems.push(transactionItem);
+    },
+    updateTransactionItem(updatedTransactionItem) {
+      const index = this.transactionItems.findIndex(
+        (ti) => ti.id === updatedTransactionItem.id
+      );
+      if (index !== -1) {
+        this.transactionItems[index] = {
+          ...this.transactionItems[index],
+          ...updatedTransactionItem,
+        };
+      }
+    },
+    deleteTransactionItem(transactionItemId) {
+      const index = this.transactionItems.findIndex(
+        (ti) => ti.id === transactionItemId
+      );
+      if (index !== -1) {
+        this.transactionItems.splice(index, 1);
+      }
+    },
+    // CRUD for transaction history
+    addTransactionHistory(transactionHistory) {
+      this.transactionHistory.push(transactionHistory);
+    },
+    updateTransactionHistory(updatedTransactionHistory) {
+      const index = this.transactionHistory.findIndex(
+        (th) => th.id === updatedTransactionHistory.id
+      );
+      if (index !== -1) {
+        this.transactionHistory[index] = {
+          ...this.transactionHistory[index],
+          ...updatedTransactionHistory,
+        };
+      }
+    },
+    deleteTransactionHistory(transactionHistoryId) {
+      const index = this.transactionHistory.findIndex(
+        (th) => th.id === transactionHistoryId
+      );
+      if (index !== -1) {
+        this.transactionHistory.splice(index, 1);
       }
     },
   },

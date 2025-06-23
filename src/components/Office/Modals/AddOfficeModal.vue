@@ -56,6 +56,7 @@ const confirmAddOffice = async () => {
         isLoading.value = true
 
         const addOffice = {
+            id: databaseStore.officeList.length + 1,
             office_name: officeName.value,
             is_deleted: 0,
             deleted_by: null
@@ -63,24 +64,13 @@ const confirmAddOffice = async () => {
 
         console.log("Add copy data sent: ", addOffice)
 
-        const response = await axiosClient.post(
-            `/api/offices/`,
-            addOffice,
-            {
-                headers: {
-                    "x-api-key": API_KEY,
-                },
-            }
-        );
-        console.log('Add Office API response:', response);
-        // emitter.emit("show-toast", { message: "Category added successfully!", type: "success" });
-        // closeModal()
+        databaseStore.addOffice(addOffice);
+        await new Promise(resolve => setTimeout(resolve, 500));
     } catch (error) {
         console.error('Error adding office:', error);
         console.error('Error details:', error.response?.data);
         emitter.emit("show-toast", { message: "Error adding office. Please try again.", type: "error" });
     } finally {
-        await databaseStore.fetchData();
         isLoading.value = false;
         emitter.emit("show-toast", { message: "Office added successfully!", type: "success" });
         closeModal();
