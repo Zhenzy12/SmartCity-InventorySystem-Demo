@@ -6,6 +6,7 @@
         "return_date": null,
         "lender_id": 3,
         "remarks": "Laptop borrowed for presentation",
+        "office_id": 1,
         "isc": "Michael"
     },
     {
@@ -15,6 +16,7 @@
         "return_date": null,
         "lender_id": 4,
         "remarks": "Office supplies for finance team",
+        "office_id": 2,
         "isc": "Jan"
     },
     {
@@ -24,6 +26,7 @@
         "return_date": null,
         "lender_id": 2,
         "remarks": "Projector borrowed for training",
+        "office_id": 3,
         "isc": "Rie"
     },
     {
@@ -33,6 +36,7 @@
         "return_date": null,
         "lender_id": 5,
         "remarks": "Books for research purposes",
+        "office_id": 4,
         "isc": "Oliver"
     },
     {
@@ -42,6 +46,7 @@
         "return_date": null,
         "lender_id": 1,
         "remarks": "Microphone borrowed for event",
+        "office_id": 5,
         "isc": "Glenn"
     },
     {
@@ -51,6 +56,7 @@
         "return_date": null,
         "lender_id": 7,
         "remarks": "Chairs borrowed for seminar",
+        "office_id": 6,
         "isc": "Ronjay"
     },
     {
@@ -60,6 +66,7 @@
         "return_date": null,
         "lender_id": 6,
         "remarks": "Whiteboard borrowed for meeting",
+        "office_id": 7,
         "isc": "Vincent"
     },
     {
@@ -69,6 +76,7 @@
         "return_date": null,
         "lender_id": 8,
         "remarks": "Printer borrowed for reports",
+        "office_id": 8,
         "isc": "Andre"
     },
     {
@@ -78,6 +86,7 @@
         "return_date": null,
         "lender_id": 9,
         "remarks": "Camera borrowed for documentation",
+        "office_id": 9,
         "isc": "Erynth"
     },
     {
@@ -87,6 +96,7 @@
         "return_date": null,
         "lender_id": 10,
         "remarks": "Extension cords borrowed for event",
+        "office_id": 10,
         "isc": "Rafael"
     }
 ]

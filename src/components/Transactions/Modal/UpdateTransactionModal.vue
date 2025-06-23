@@ -127,6 +127,7 @@ const updateEquipment = async (availability, item) => {
 
 const updateBorrowTransaction = async (date) => {
   try {
+    isLoading.value = true;
 
     const formattedDate = date instanceof Date
       ? new Date(date).toLocaleString('en-US', {
@@ -141,12 +142,18 @@ const updateBorrowTransaction = async (date) => {
       }).replace(/(\d+)\/(\d+)\/(\d+),\s/, '$3-$1-$2 ')
       : date;
 
+    // Update each item in the transaction
+    for (const item of selectedTransactionItems.value) {
+      await updateItems(formattedDate, true, item);
+    }
+
+    // Update the transaction record
     const updateTransactions = {
       id: props.transaction.id,
       return_date: formattedDate
-    }
+    };
 
-    databaseStore.updateTransactionHistory(updateTransactions);
+    await databaseStore.updateTransactionHistory(updateTransactions);
     await new Promise(resolve => setTimeout(resolve, 500));
     console.log("Updated Transaction successfully:", updateTransactions);
 
@@ -162,8 +169,6 @@ const updateBorrowTransaction = async (date) => {
 
 const updateItems = async (date, returned, item) => {
   try {
-    isLoading.value = true;
-
     // Ensure proper date formatting
     const formattedDate = date instanceof Date
       ? new Date(date).toLocaleString('en-US', {
@@ -183,7 +188,7 @@ const updateItems = async (date, returned, item) => {
     const updateData = {
       id: item.id,
       returned: returned,
-      returned_date: formattedDate,
+      return_date: formattedDate,
     };
 
     databaseStore.updateTransactionItem(updateData);
@@ -198,7 +203,7 @@ const updateItems = async (date, returned, item) => {
     });
     emitter.emit("show-toast", { message: `Error updating transaction: ${error.response?.data?.message || error.message}`, type: "error" });
   } finally {
-    isLoading.value = false
+    // isLoading.value = false
   }
 };
 
