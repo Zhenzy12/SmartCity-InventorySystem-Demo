@@ -93,6 +93,7 @@ const confirmUpdateUsers = async () => {
         isLoading.value = true
 
         const updateUser = {
+            id: props.user.id,
             firstName: firstName.value,
             middleName: middleName.value,
             lastName: lastName.value,
@@ -105,24 +106,15 @@ const confirmUpdateUsers = async () => {
 
         console.log("Update user data sent: ", updateUser)
 
-        const response = await axiosClient.put(
-            `/api/users/${props.user.id}`,
-            updateUser,
-            {
-                headers: {
-                    "x-api-key": API_KEY,
-                },
-            }
-        );
-        console.log('Update Users API response:', response);
-        // emitter.emit("show-toast", { message: "User updated successfully!", type: "success" });
-        // closeModal()
+        databaseStore.updateUser(updateUser)
+        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log("User updated successfully:", updateUser);
+
     } catch (error) {
         console.error('Error updating user:', error);
         console.error('Error details:', error.response?.data);
         emitter.emit("show-toast", { message: "Error updating user. Please try again.", type: "error" });
     } finally {
-        await databaseStore.fetchData();
         isLoading.value = false;
         emitter.emit("show-toast", { message: "User updated successfully!", type: "success" });
         closeModal();

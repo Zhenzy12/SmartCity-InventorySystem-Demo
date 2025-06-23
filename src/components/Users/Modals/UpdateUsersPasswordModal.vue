@@ -66,6 +66,7 @@ const confirmUpdatePassword = async () => {
         isLoading.value = true
 
         const updatePassword = {
+            id: props.user.id,
             firstName: props.user.firstName,
             middleName: props.user.middleName,
             lastName: props.user.lastName,
@@ -79,24 +80,13 @@ const confirmUpdatePassword = async () => {
 
         console.log("Add password data sent: ", updatePassword)
 
-        const response = await axiosClient.put(
-            `/api/users/${props.user.id}`,
-            updatePassword,
-            {
-                headers: {
-                    "x-api-key": API_KEY,
-                },
-            }
-        );
-        console.log('Update Password API response:', response);
-        // emitter.emit("show-toast", { message: "Password updated successfully!", type: "success" });
-        // closeModal()
+        databaseStore.updateUser(updatePassword);
+        await new Promise(resolve => setTimeout(resolve, 500));
+        console.log("User password updated successfully:", updatePassword);
     } catch (error) {
         console.error('Error updating password:', error);
-        console.error('Error details:', error.response?.data);
         emitter.emit("show-toast", { message: "Error updating password. Please try again.", type: "error" });
     } finally {
-        await databaseStore.fetchData();
         isLoading.value = false;
         emitter.emit("show-toast", { message: "User password updated successfully!", type: "success" });
         closeModal();

@@ -67,62 +67,55 @@ onMounted(() => {
   );
   // Map the filtered users to include is_selected property
   deletedUsersArray.value = filteredDeletedUsers.value.map((user) => ({
-        ...user,
-        is_selected: false,
-    }));
+    ...user,
+    is_selected: false,
+  }));
   console.log('Filtered Deleted Users:', deletedUsersArray.value);
 });
 
 const confirmRecoverUsers = async () => {
-    try {
-        isLoading.value = true
+  try {
+    isLoading.value = true
 
-        const selectedUsers = deletedUsersArray.value.filter(user => user.is_selected);
-        
-        if (selectedUsers.length === 0) {
-            emitter.emit("show-toast", { message: "Please select users to recover.", type: "warning" });
-            return;
-        }
+    const selectedUsers = deletedUsersArray.value.filter(user => user.is_selected);
 
-        for (const user of selectedUsers) {
-            const updateUser = {
-                firstName: user.firstName,
-                middleName: user.middleName,
-                lastName: user.lastName,
-                email: user.email,
-                is_deleted: 0, 
-                for_911: user.for_911,
-                for_inventory: user.for_inventory,
-                for_traffic: user.for_traffic,
-            }
-
-            console.log("Update user data sent: ", updateUser)
-
-            const response = await axiosClient.put(
-                `/api/users/${user.id}`,
-                updateUser,
-                {
-                    headers: {
-                        "x-api-key": API_KEY,
-                    },
-                }
-            );
-            console.log('Update Users API response:', response);
-        }
-
-    } catch (error) {
-        console.error('Error updating users:', error);
-        console.error('Error details:', error.response?.data);
-        emitter.emit("show-toast", { message: "Error recovering users. Please try again.", type: "error" });
-    } finally {
-        await databaseStore.fetchData();
-        isLoading.value = false;
-        emitter.emit("show-toast", { 
-            message: "Selected users recovered successfully!", 
-            type: "success" 
-        });
-        closeModal();
+    if (selectedUsers.length === 0) {
+      emitter.emit("show-toast", { message: "Please select users to recover.", type: "warning" });
+      return;
     }
+
+    for (const user of selectedUsers) {
+      const updateUser = {
+        firstName: user.firstName,
+        middleName: user.middleName,
+        lastName: user.lastName,
+        email: user.email,
+        is_deleted: 0,
+        for_911: user.for_911,
+        for_inventory: user.for_inventory,
+        for_traffic: user.for_traffic,
+      }
+
+      console.log("Update user data sent: ", updateUser)
+
+      databaseStore.updateUser(user.id, updateUser);
+      await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay for each
+      console.log("User updated successfully:", user.id);
+    }
+
+  } catch (error) {
+    console.error('Error updating users:', error);
+    console.error('Error details:', error.response?.data);
+    emitter.emit("show-toast", { message: "Error recovering users. Please try again.", type: "error" });
+  } finally {
+    await databaseStore.fetchData();
+    isLoading.value = false;
+    emitter.emit("show-toast", {
+      message: "Selected users recovered successfully!",
+      type: "success"
+    });
+    closeModal();
+  }
 }
 
 const handleCheckboxChange = (userId) => {
@@ -160,27 +153,27 @@ const searchQuery = ref("");
 
 // Replace your existing filteredDeletedUsers logic with this computed property
 const filteredDeletedUsersSearch = computed(() => {
-    return databaseStore.users.filter(user =>
-        user.is_deleted === 1 && user.for_inventory === 1 &&
-        (user.firstName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-         user.lastName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-         user.email.toLowerCase().includes(searchQuery.value.toLowerCase()))
-    );
+  return databaseStore.users.filter(user =>
+    user.is_deleted === 1 && user.for_inventory === 1 &&
+    (user.firstName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      user.lastName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      user.email.toLowerCase().includes(searchQuery.value.toLowerCase()))
+  );
 });
 
 // Add a watch to update deletedUsersArray when search changes
 watch(filteredDeletedUsersSearch, (newUsers) => {
-    deletedUsersArray.value = newUsers.map((user) => ({
-        ...user,
-        is_selected: false,
-    }));
+  deletedUsersArray.value = newUsers.map((user) => ({
+    ...user,
+    is_selected: false,
+  }));
 });
 
 const confirmAction = (confirmed) => {
-    if (confirmed) {
-        confirmRecoverUsers();
-        showConfirmationModal.value = false;
-    }
+  if (confirmed) {
+    confirmRecoverUsers();
+    showConfirmationModal.value = false;
+  }
 }
 
 const formatDate = (date) => {
@@ -202,29 +195,30 @@ const formatDate = (date) => {
         Recover Users
       </h3>
       <div class="w-full px-5 mb-4">
-    <form class="flex items-center">
-        <label for="simple-search" class="sr-only">Search</label>
-        <div class="relative w-full">
+        <form class="flex items-center">
+          <label for="simple-search" class="sr-only">Search</label>
+          <div class="relative w-full">
             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400"
-                    fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <path fill-rule="evenodd"
-                        d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                        clip-rule="evenodd" />
-                </svg>
+              <svg aria-hidden="true" class="w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor"
+                viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                <path fill-rule="evenodd"
+                  d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                  clip-rule="evenodd" />
+              </svg>
             </div>
             <input v-model="searchQuery" type="text" id="simple-search"
-                class="bg-gray-50 border border-gray-500 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                placeholder="Search users..." />
-        </div>
-    </form>
-</div>
+              class="bg-gray-50 border border-gray-500 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+              placeholder="Search users..." />
+          </div>
+        </form>
+      </div>
 
       <!-- FOR THE EQUIPMENT -->
       <div v-if="deletedUsersArray.length > 0"
         class="flex items-center justify-center lg:px-5 text-start max-h-[69vh] w-full overflow-y-auto">
         <!-- TABLE FOR CHOOSING MULTIPLE EQUIPMENT COPY -->
-        <div class="border w-fit  min-w-full max-w-[600px] lg:max-w-full overflow-y-auto lg:mx-10 my-1 pb-1 rounded-lg dark:border-gray-700 ">
+        <div
+          class="border w-fit  min-w-full max-w-[600px] lg:max-w-full overflow-y-auto lg:mx-10 my-1 pb-1 rounded-lg dark:border-gray-700 ">
           <table class="w-full">
             <thead>
               <tr class="text-center dark:bg-gray-800">
@@ -267,8 +261,7 @@ const formatDate = (date) => {
           </table>
         </div>
       </div>
-      <div v-else
-        class="px-5 text-start max-h-[69vh] overflow-y-auto">
+      <div v-else class="px-5 text-start max-h-[69vh] overflow-y-auto">
         <p class="text-gray-500 dark:text-gray-400">No available users to recover.</p>
       </div>
 
@@ -289,8 +282,9 @@ const formatDate = (date) => {
       </div>
 
       <!-- Confirmation Modal -->
-      <ConfirmationModal v-model="showConfirmationModal" title="Confirm Recovery" :message="`Are you sure you want to recover the selected users?`"
-        confirmText="Confirm Recovery" @confirm="confirmAction(true)" />
+      <ConfirmationModal v-model="showConfirmationModal" title="Confirm Recovery"
+        :message="`Are you sure you want to recover the selected users?`" confirmText="Confirm Recovery"
+        @confirm="confirmAction(true)" />
     </div>
   </div>
 </template>

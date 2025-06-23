@@ -11,8 +11,6 @@ import mockOfficeSuppliesData from "../data/mockOfficeSuppliesData.json";
 import mockTransactionHistoryData from "../data/mockTransactionHistoryData.json";
 import mockTransactionItemsData from "../data/mockTransactionItemsData.json";
 
-
-
 export const useDatabaseStore = defineStore("database", {
   state: () => ({
     officeEquipments: [],
@@ -71,7 +69,7 @@ export const useDatabaseStore = defineStore("database", {
       if (index !== -1) {
         this.borrowers[index].is_deleted = 0;
         this.borrowers[index].deleted_by = null;
-        this.borrowers[index].updated_at = new Date().toLocaleDateString()
+        this.borrowers[index].updated_at = new Date().toLocaleDateString();
       }
     },
     // crud for category
@@ -93,7 +91,7 @@ export const useDatabaseStore = defineStore("database", {
       const index = this.categoryList.findIndex((c) => c.id === categoryId);
       if (index !== -1) {
         this.categoryList[index].is_deleted = 1;
-        this.categoryList[index].updated_at = new Date().toLocaleDateString()
+        this.categoryList[index].updated_at = new Date().toLocaleDateString();
       }
     },
     restoreCategory(categoryId) {
@@ -102,14 +100,81 @@ export const useDatabaseStore = defineStore("database", {
         this.categoryList[index].is_deleted = 0;
       }
     },
+    // CRUD for equipment copies
+    addEquipmentCopy(equipmentCopy) {
+      this.equipmentCopies.push(equipmentCopy);
+    },
+    updateEquipmentCopy(updatedEquipmentCopy) {
+      const index = this.equipmentCopies.findIndex(
+        (ec) => ec.id === updatedEquipmentCopy.id
+      );
+      if (index !== -1) {
+        this.equipmentCopies[index] = {
+          ...this.equipmentCopies[index],
+          ...updatedEquipmentCopy,
+        };
+      }
+    },
+    deleteEquipmentCopy(equipmentCopyId) {
+      const index = this.equipmentCopies.findIndex(
+        (ec) => ec.id === equipmentCopyId
+      );
+      if (index !== -1) {
+        this.equipmentCopies.splice(index, 1);
+      }
+    },
+    // CRUD for inventory access
+    addInventoryAccess(inventoryAccess) {
+      this.inventoryAccesses.push(inventoryAccess);
+    },
+    updateInventoryAccess(updatedInventoryAccess) {
+      const index = this.inventoryAccesses.findIndex(
+        (ia) => ia.id === updatedInventoryAccess.id
+      );
+      if (index !== -1) {
+        this.inventoryAccesses[index] = {
+          ...this.inventoryAccesses[index],
+          ...updatedInventoryAccess,
+        };
+      }
+    },
+    deleteInventoryAccess(inventoryAccessId) {
+      const index = this.inventoryAccesses.findIndex(
+        (ia) => ia.id === inventoryAccessId
+      );
+      if (index !== -1) {
+        this.inventoryAccesses.splice(index, 1);
+      }
+    },
+    // CRUD for office equipments
+    addOfficeEquipment(officeEquipment) {
+      this.officeEquipments.push(officeEquipment);
+    },
+    updateOfficeEquipment(updatedOfficeEquipment) {
+      const index = this.officeEquipments.findIndex(
+        (oe) => oe.id === updatedOfficeEquipment.id
+      );
+      if (index !== -1) {
+        this.officeEquipments[index] = {
+          ...this.officeEquipments[index],
+          ...updatedOfficeEquipment,
+        };
+      }
+    },
+    deleteOfficeEquipment(officeEquipmentId) {
+      const index = this.officeEquipments.findIndex(
+        (ti) => ti.id === officeEquipmentId
+      );
+      if (index !== -1) {
+        this.officeEquipments.splice(index, 1);
+      }
+    },
     // CRUD for offices
     addOffice(office) {
       this.officeList.push(office);
     },
     updateOffice(updatedOffice) {
-      const index = this.officeList.findIndex(
-        (o) => o.id === updatedOffice.id
-      );
+      const index = this.officeList.findIndex((o) => o.id === updatedOffice.id);
       if (index !== -1) {
         this.officeList[index] = {
           ...this.officeList[index],
@@ -121,7 +186,7 @@ export const useDatabaseStore = defineStore("database", {
       const index = this.officeList.findIndex((o) => o.id === officeId);
       if (index !== -1) {
         this.officeList[index].is_deleted = 1;
-        this.officeList[index].updated_at = new Date().toLocaleDateString()
+        this.officeList[index].updated_at = new Date().toLocaleDateString();
       }
     },
     restoreOffice(officeId) {
@@ -153,27 +218,27 @@ export const useDatabaseStore = defineStore("database", {
         this.officeSupplies.splice(index, 1);
       }
     },
-    // CRUD for equipment copies
-    addEquipmentCopy(equipmentCopy) {
-      this.equipmentCopies.push(equipmentCopy);
+    // CRUD for transaction history
+    addTransactionHistory(transactionHistory) {
+      this.transactionHistory.push(transactionHistory);
     },
-    updateEquipmentCopy(updatedEquipmentCopy) {
-      const index = this.equipmentCopies.findIndex(
-        (ec) => ec.id === updatedEquipmentCopy.id
+    updateTransactionHistory(updatedTransactionHistory) {
+      const index = this.transactionHistory.findIndex(
+        (th) => th.id === updatedTransactionHistory.id
       );
       if (index !== -1) {
-        this.equipmentCopies[index] = {
-          ...this.equipmentCopies[index],
-          ...updatedEquipmentCopy,
+        this.transactionHistory[index] = {
+          ...this.transactionHistory[index],
+          ...updatedTransactionHistory,
         };
       }
     },
-    deleteEquipmentCopy(equipmentCopyId) {
-      const index = this.equipmentCopies.findIndex(
-        (ec) => ec.id === equipmentCopyId
+    deleteTransactionHistory(transactionHistoryId) {
+      const index = this.transactionHistory.findIndex(
+        (th) => th.id === transactionHistoryId
       );
       if (index !== -1) {
-        this.equipmentCopies.splice(index, 1);
+        this.transactionHistory.splice(index, 1);
       }
     },
     // CRUD for transaction items
@@ -199,27 +264,31 @@ export const useDatabaseStore = defineStore("database", {
         this.transactionItems.splice(index, 1);
       }
     },
-    // CRUD for transaction history
-    addTransactionHistory(transactionHistory) {
-      this.transactionHistory.push(transactionHistory);
+    // CRUD for users
+    addUser(user) {
+      this.users.push(user);
     },
-    updateTransactionHistory(updatedTransactionHistory) {
-      const index = this.transactionHistory.findIndex(
-        (th) => th.id === updatedTransactionHistory.id
-      );
+    updateUser(updatedUser) {
+      const index = this.users.findIndex((u) => u.id === updatedUser.id);
       if (index !== -1) {
-        this.transactionHistory[index] = {
-          ...this.transactionHistory[index],
-          ...updatedTransactionHistory,
+        this.users[index] = {
+          ...this.users[index],
+          ...updatedUser,
         };
       }
     },
-    deleteTransactionHistory(transactionHistoryId) {
-      const index = this.transactionHistory.findIndex(
-        (th) => th.id === transactionHistoryId
-      );
+    deleteUser(userId) {
+      const index = this.users.findIndex((u) => u.id === userId);
       if (index !== -1) {
-        this.transactionHistory.splice(index, 1);
+        this.users[index].is_deleted = 1;
+        this.users[index].updated_at = new Date().toLocaleDateString();
+      }
+    },
+    restoreUser(userId) {
+      const index = this.users.findIndex((u) => u.id === userId);
+      if (index !== -1) {
+        this.users[index].is_deleted = 0;
+        this.users[index].updated_at = new Date().toLocaleDateString();
       }
     },
   },

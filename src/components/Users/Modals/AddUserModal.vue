@@ -95,7 +95,13 @@ const confirmAddUser = async () => {
   try {
     isLoading.value = true
 
+    const maxId = databaseStore.users.length
+      ? Math.max(...databaseStore.users.map(u => u.id))
+      : 0;
+    const userId = maxId + 1;
+
     const addUser = {
+      id: userId,
       firstName: data.value.firstName,
       middleName: data.value.middleName,
       lastName: data.value.lastName,
@@ -110,50 +116,37 @@ const confirmAddUser = async () => {
 
     console.log("Add copy data sent: ", addUser)
 
-    const response = await axiosClient.post(
-      `/api/addUsers/`,
-      addUser,
-      {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      }
-    );
+    databaseStore.addUser(addUser);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log("User added successfully:", addUser);
 
-    console.log('Add User API response:', response);
+    const maxAccessId = databaseStore.inventoryAccesses.length
+        ? Math.max(...databaseStore.inventoryAccesses.map(a => a.id || 0))
+        : 0;
 
-    // Then create their access permissions
-    if (response.data.data.id) {
       // Convert boolean values to 0/1 for the database
       const accessData = {
-        user_id: response.data.data.id,
-        for_dashboard: data.value.access.for_dashboard ? 1 : 0,
-        for_transactions: data.value.access.for_transactions ? 1 : 0,
-        for_inventory: data.value.access.for_inventory ? 1 : 0,
-        for_categories: data.value.access.for_categories ? 1 : 0,
-        for_borrowers: data.value.access.for_borrowers ? 1 : 0,
-        for_offices: data.value.access.for_offices ? 1 : 0,
-        for_users: data.value.access.for_users ? 1 : 0
+        id: maxAccessId + 1,
+        user_id: userId,
+        for_dashboard: data.value.access.for_dashboard,
+        for_transactions: data.value.access.for_transactions,
+        for_inventory: data.value.access.for_inventory,
+        for_categories: data.value.access.for_categories,
+        for_borrowers: data.value.access.for_borrowers,
+        for_offices: data.value.access.for_offices,
+        for_users: data.value.access.for_users
       };
 
       console.log("Sending access data:", accessData);
 
-      const accessResponse = await axiosClient.post('/api/inventory_access', accessData, {
-        headers: {
-          "x-api-key": API_KEY,
-        },
-      });
-
-      console.log("Access creation response:", accessResponse);
-    }
-    // emitter.emit("show-toast", { message: "Category added successfully!", type: "success" });
-    // closeModal()
+      databaseStore.addInventoryAccess(accessData);
+      await new Promise(resolve => setTimeout(resolve, 500));
+      console.log("Access permissions added successfully:", accessData);
   } catch (error) {
     console.error('Error adding user:', error);
-    console.error('Error details:', error.response?.data);
     emitter.emit("show-toast", { message: "Error adding user. Please try again.", type: "error" });
   } finally {
-    await databaseStore.fetchData();
+
     isLoading.value = false;
     emitter.emit("show-toast", { message: "User added successfully!", type: "success" });
     closeModal();

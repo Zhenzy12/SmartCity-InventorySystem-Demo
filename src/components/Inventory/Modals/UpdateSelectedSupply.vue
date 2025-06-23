@@ -108,31 +108,22 @@ const confirmUpdateSupply = async () => {
   try {
     isLoading.value = true;
 
-    const formData = new FormData();
-    formData.append("supply_name", supplyName.value);
-    formData.append("supply_description", supplyDescription.value);
-    formData.append("category_id", selectedCategory.value);
-    formData.append("supply_quantity", supplyQuantity.value);
-    formData.append("isc", ics.value)
+    const updateData = {
+      id: props.selectedItems.id,
+      supply_name: supplyName.value,
+      supply_description: supplyDescription.value,
+      category_id: selectedCategory.value,
+      supply_quantity: supplyQuantity.value,
+      isc: ics.value,
+      image_path: selectedImage.value ? selectedImage.value : currentImagePath.value,
+    };
 
-    if (selectedImage.value) {
-      formData.append("image", selectedImage.value);
-    }
+    console.log("Update supply data sent: ", updateData)
 
-    formData.append("_method", "PUT");
+    databaseStore.updateOfficeSupply(updateData);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    console.log("Supply updated successfully:", updateData);
 
-    console.log("Update supply data sent: ", formData)
-
-    const response = await axiosClient.post(
-      `/api/office_supplies/${props.selectedItems.id}`,
-      formData,
-      {
-        headers: {
-          "x-api-key": API_KEY,
-          "Content-Type": "multipart/form-data",
-        },
-      }
-    );
     // Generate QR codes with updated values
     generatedQRCodes.value = [{
       id: props.selectedItems.id,
@@ -143,15 +134,11 @@ const confirmUpdateSupply = async () => {
     }];
 
     showQRCodes.value = true;
-    console.log('Update Supplies API response:', response);
-    // emitter.emit("show-toast", { message: "Supply updated successfully!", type: "success" });
-    // closeModal()
+    console.log("Generated QR Codes: ", generatedQRCodes.value);
   } catch (error) {
     console.error('Error updating supplies:', error);
-    console.error('Error details:', error.response?.data);
     emitter.emit("show-toast", { message: "Error updating supplies. Please try again.", type: "error" });
   } finally {
-    await databaseStore.fetchData();
     isLoading.value = false;
     emitter.emit("show-toast", { message: "Supply Updated successfully!", type: "success" });
     // closeModal();
