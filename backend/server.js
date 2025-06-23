@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 8080;
 
 // Serve frontend files
 // const distPath = path.join(__dirname, '../frontend/dist/');
-const distPath = path.join(__dirname, '../dist/');
+const distPath = path.join(__dirname, './dist/');
 app.use(express.static(distPath));
 
 // Catch-all route to serve the frontend
