@@ -184,28 +184,13 @@ const confirmDeleteCategory = async (confirmed, categoryId) => {
     if (confirmed) {
         isLoadingAgain.value = true
         try {
-            const deleteCategory = {
-                is_deleted: 1,
-                deleted_by: user.value.id,
-            }
-
-            const response = await axiosClient.put(`api/categories/${categoryId}`, deleteCategory,
-                {
-                    headers: { 'x-api-key': API_KEY },
-                });
-
-            console.log('Delete Category API response:', response);
-
-            databaseStore.categoryList = databaseStore.categoryList.filter(category => category.id !== categoryId);
-
-            console.log(`Category deleted successfully.`);
-            // emitter.emit("show-toast", { message: "Category deleted successfully!", type: "success" });
+            databaseStore.deleteCategory(categoryId, user.value.id);
+            await new Promise(resolve => setTimeout(resolve, 500));
         } catch (error) {
             console.error('Error deleting category:', error);
             emitter.emit("show-toast", { message: "Error deleting category. Please try again.", type: "error" });
             isLoadingAgain.value = false
         } finally {
-            await databaseStore.fetchData();
             emitter.emit("show-toast", { message: "Category deleted successfully!", type: "success" });
             showDeleteConfirmationModal.value = false; // Close the modal    
             isLoadingAgain.value = false

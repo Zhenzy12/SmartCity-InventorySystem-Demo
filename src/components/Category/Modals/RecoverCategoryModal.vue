@@ -73,6 +73,8 @@ onMounted(() => {
   console.log('Filtered Deleted Categories:', deletedCategoriesArray.value);
 });
 
+
+
 const confirmRecoverCategories = async () => {
     try {
         isLoading.value = true
@@ -88,22 +90,15 @@ const confirmRecoverCategories = async () => {
             const updateCategory = {
                 category_name: category.category_name,
                 is_deleted: 0,
-                deleted_by: null
+                deleted_by: null,
             }
 
 
             console.log("Update user data sent: ", updateCategory)
 
-            const response = await axiosClient.put(
-                `/api/categories/${category.id}`,
-                updateCategory,
-                {
-                    headers: {
-                        "x-api-key": API_KEY,
-                    },
-                }
-            );
-            console.log('Update Category API response:', response);
+            databaseStore.restoreCategory(category.id, updateCategory)
+
+            await new Promise(resolve => setTimeout(resolve, 500));
         }
 
     } catch (error) {
@@ -111,7 +106,6 @@ const confirmRecoverCategories = async () => {
         console.error('Error details:', error.response?.data);
         emitter.emit("show-toast", { message: "Error recovering categories. Please try again.", type: "error" });
     } finally {
-        await databaseStore.fetchData();
         isLoading.value = false;
         emitter.emit("show-toast", { 
             message: "Selected Categories recovered successfully!", 

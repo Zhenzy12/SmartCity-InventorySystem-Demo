@@ -56,6 +56,7 @@ const confirmAddCategory = async () => {
         isLoading.value = true
 
         const addCategory = {
+            id: databaseStore.categoryList.length + 1,
             category_name: categoryName.value,
             is_deleted: 0,
             deleted_by: null
@@ -63,24 +64,15 @@ const confirmAddCategory = async () => {
 
         console.log("Add copy data sent: ", addCategory)
 
-        const response = await axiosClient.post(
-            `/api/categories/`,
-            addCategory,
-            {
-                headers: {
-                    "x-api-key": API_KEY,
-                },
-            }
-        );
-        console.log('Add Category API response:', response);
-        // emitter.emit("show-toast", { message: "Category added successfully!", type: "success" });
-        // closeModal()
+        databaseStore.addCategory(addCategory)
+
+        await new Promise(resolve => setTimeout(resolve, 500)); 
+
     } catch (error) {
         console.error('Error adding category:', error);
         console.error('Error details:', error.response?.data);
         emitter.emit("show-toast", { message: "Error adding category. Please try again.", type: "error" });
     } finally {
-        await databaseStore.fetchData();
         isLoading.value = false;
         emitter.emit("show-toast", { message: "Category added successfully!", type: "success" });
         closeModal();
