@@ -11,6 +11,7 @@
 		"for_inventory": true,
 		"for_traffic": true,
 		"role": true,
+		"is_deleted": 0,
 		"created_at": "2025-01-02T10:00:00+08:00",
 		"updated_at": "2025-01-02T10:00:00+08:00"
 	},
@@ -26,6 +27,7 @@
 		"for_inventory": true,
 		"for_traffic": false,
 		"role": true,
+		"is_deleted": 0,
 		"created_at": "2025-01-03T10:00:00+08:00",
 		"updated_at": "2025-01-03T10:00:00+08:00"
 	},
@@ -41,8 +43,10 @@
 		"for_inventory": false,
 		"for_traffic": true,
 		"role": true,
+		"is_deleted": 0,
 		"created_at": "2025-01-04T10:00:00+08:00",
 		"updated_at": "2025-01-04T10:00:00+08:00"
+		
 	},
 	{
 		"id": 4,
@@ -56,6 +60,7 @@
 		"for_inventory": true,
 		"for_traffic": false,
 		"role": true,
+		"is_deleted": 0,
 		"created_at": "2025-01-05T10:00:00+08:00",
 		"updated_at": "2025-01-05T10:00:00+08:00"
 	},
@@ -71,6 +76,7 @@
 		"for_inventory": true,
 		"for_traffic": true,
 		"role": true,
+		"is_deleted": 0,
 		"created_at": "2025-01-06T10:00:00+08:00",
 		"updated_at": "2025-01-06T10:00:00+08:00"
 	},
@@ -86,6 +92,7 @@
 		"for_inventory": true,
 		"for_traffic": false,
 		"role": true,
+		"is_deleted": 0,
 		"created_at": "2025-01-07T10:00:00+08:00",
 		"updated_at": "2025-01-07T10:00:00+08:00"
 	},
@@ -101,6 +108,7 @@
 		"for_inventory": true,
 		"for_traffic": false,
 		"role": true,
+		"is_deleted": 0,
 		"created_at": "2025-01-08T10:00:00+08:00",
 		"updated_at": "2025-01-08T10:00:00+08:00"
 	},
@@ -116,6 +124,7 @@
 		"for_inventory": false,
 		"for_traffic": false,
 		"role": true,
+		"is_deleted": 0,
 		"created_at": "2025-01-09T10:00:00+08:00",
 		"updated_at": "2025-01-09T10:00:00+08:00"
 	},
@@ -131,6 +140,7 @@
 		"for_inventory": true,
 		"for_traffic": false,
 		"role": true,
+		"is_deleted": 0,
 		"created_at": "2025-01-10T10:00:00+08:00",
 		"updated_at": "2025-01-10T10:00:00+08:00"
 	},
@@ -146,6 +156,7 @@
 		"for_inventory": false,
 		"for_traffic": false,
 		"role": true,
+		"is_deleted": 0,
 		"created_at": "2025-01-11T10:00:00+08:00",
 		"updated_at": "2025-01-11T10:00:00+08:00"
 	}
