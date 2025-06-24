@@ -63,8 +63,9 @@ onMounted(() => {
   databaseStore.fetchData();
   // Filter the deleted users
   filteredDeletedUsers.value = databaseStore.users.filter(user =>
-    user.is_deleted === 1 && user.for_inventory === 1
+    user.is_deleted === 1 && user.for_inventory === true
   );
+  console.log(filteredDeletedUsers.value);
   // Map the filtered users to include is_selected property
   deletedUsersArray.value = filteredDeletedUsers.value.map((user) => ({
     ...user,
@@ -98,7 +99,7 @@ const confirmRecoverUsers = async () => {
 
       console.log("Update user data sent: ", updateUser)
 
-      databaseStore.updateUser(user.id, updateUser);
+      databaseStore.restoreUser(user.id, updateUser);
       await new Promise(resolve => setTimeout(resolve, 500)); // Simulate delay for each
       console.log("User updated successfully:", user.id);
     }
@@ -154,7 +155,7 @@ const searchQuery = ref("");
 // Replace your existing filteredDeletedUsers logic with this computed property
 const filteredDeletedUsersSearch = computed(() => {
   return databaseStore.users.filter(user =>
-    user.is_deleted === 1 && user.for_inventory === 1 &&
+    user.is_deleted === 1 && user.for_inventory === true &&
     (user.firstName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       user.lastName.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       user.email.toLowerCase().includes(searchQuery.value.toLowerCase()))
@@ -283,7 +284,7 @@ const formatDate = (date) => {
 
       <!-- Confirmation Modal -->
       <ConfirmationModal v-model="showConfirmationModal" title="Confirm Recovery"
-        :message="`Are you sure you want to recover the selected users?`" confirmText="Confirm Recovery"
+        :messageData="`Are you sure you want to recover the selected users?`" confirmText="Confirm Recovery"
         @confirm="confirmAction(true)" />
     </div>
   </div>
