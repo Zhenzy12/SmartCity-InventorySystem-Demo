@@ -129,7 +129,7 @@ export const useDatabaseStore = defineStore("database", {
     },
     updateInventoryAccess(updatedInventoryAccess) {
       const index = this.inventoryAccesses.findIndex(
-        (ia) => ia.id === updatedInventoryAccess.id
+        (ia) => ia.user_id === updatedInventoryAccess.user_id
       );
       if (index !== -1) {
         this.inventoryAccesses[index] = {

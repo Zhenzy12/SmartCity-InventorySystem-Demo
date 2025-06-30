@@ -128,7 +128,6 @@ watch(() => equipmentCopySerialNumber.value, (newValue) => {
   }
 });
 
-
 watch(() => selectedOffice.value, (newValue) => {
   if (!newValue) {
     errors.value.selectedOffice = ["Office is required"];
@@ -349,11 +348,11 @@ const confirmAddItem = async () => {
 
         const newEquipment = {
           id: equipmentId,
+          type: "Office Equipment",
           equipment_name: equipmentName.value,
           equipment_description: equipmentDescription.value,
           category_id: selectedCategory.value,
           isc: equipmentIcs.value,
-          image: selectedImage.value || null,
         };
 
         databaseStore.addOfficeEquipment(newEquipment);
@@ -362,12 +361,10 @@ const confirmAddItem = async () => {
 
         equipmentQRCodes.value = Array.from({ length: parseInt(equipmentQuantity.value) }, (_, index) => ({
           id: equipmentId,
-          copyNumber: index + 1,
-          name: equipmentName.value,
-          description: equipmentDescription.value,
-          categoryId: selectedCategory.value,
-          serialNumber: equipmentCopySerialNumber.value,
-          type: 'equipment'
+          item_id: newEquipment.id,
+          is_available: true,
+          copy_num: index + 1,
+          serial_number: equipmentCopySerialNumber.value,
         }));
 
         showQRCodes.value = true;
@@ -397,9 +394,10 @@ const confirmAddItem = async () => {
           supply_description: supplyDescription.value,
           category_id: selectedCategory.value,
           supply_quantity: supplyQuantity.value,
-          isc: supplyIcs.value,
-          image: selectedImage.value || null,
+          type: "Office Supply",
         };
+
+        console.log("newSupply:",newSupply)
 
         // Add the supply to the store
         databaseStore.addOfficeSupply(newSupply);

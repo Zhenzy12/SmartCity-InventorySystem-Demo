@@ -28,6 +28,10 @@ onMounted(() => {
 	databaseStore.fetchData();
 });
 
+watch(databaseStore.inventoryAccesses, (newVal) => {
+	console.log('inv access', newVal)
+})
+
 // for search function
 const searchQuery = ref("");
 
